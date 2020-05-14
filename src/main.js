@@ -22,7 +22,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 /** Firebase End */
 
-
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import App from './App'
 

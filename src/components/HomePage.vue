@@ -34,11 +34,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.el-table .warning-row {
-  background: oldlace;
-}
-
-.el-table .success-row {
-  background: #f0f9eb;
-}
 </style>
