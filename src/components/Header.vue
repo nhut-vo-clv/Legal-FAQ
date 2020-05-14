@@ -3,33 +3,21 @@
     <div class="wrapper">
         <!-- Sidebar  -->
         <nav id="sidebar">
-            <!-- <div id="dismiss" @click="dismissNav">
-                <i class="fas fa-arrow-left"></i>
-            </div> -->
-
-            <!-- <div class="sidebar-header">
-                <h3>Bootstrap Sidebar</h3>
-            </div> -->
 
             <ul class="list-unstyled components">
-               
                 <li class="active">
                     <a href="#">About</a>
                 </li>
                 <li>
                     <a href="#">Portfolio</a>
                 </li>
-            
             </ul>
-
-            <!-- <ul class="list-unstyled CTAs">
+             <ul class="list-unstyled CTAs">
                 <li>
-                    <a href="https://bootstrapious.com/tutorial/files/sidebar.zip" class="download">Download source</a>
+                    <a href="https://bootstrapious.com/tutorial/files/sidebar.zip" class="download">Logout</a>
                 </li>
-                <li>
-                    <a href="https://bootstrapious.com/p/bootstrap-sidebar" class="article">Back to article</a>
-                </li>
-            </ul> -->
+               
+            </ul>
         </nav>
 
         <!-- Page Content  -->
@@ -38,56 +26,36 @@
             <nav class="navbar navbar-expand-lg nav-c-1">
                 <div class="container-fluid">
                     <div class="nav-c-2">
-                        <button type="button" id="sidebarCollapse" @click="openNav">
-                            <i class="fas fa-align-left"></i>
-                        </button>
                         <img src="../assets/logo.png" alt="Oneline Directory" class="app-logo">
                     </div>
+                    
 
                     <div class="nav-c-3">
-                         <el-avatar :size="35" :src="circleUrl"></el-avatar>
+                        
+                        <el-avatar :size="35" :src="circleUrl"></el-avatar>
+                        <button type="button" id="sidebarCollapse" @click="openNav">
+                            <i class="fas fa-bars"></i>
+                        </button>
                     </div>
-                    
-
-                    
-
-                    <!-- <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <i class="fas fa-align-justify"></i>
-                    </button> -->
-
-                    <!-- <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="nav navbar-nav ml-auto">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">Page</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Page</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Page</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Page</a>
-                            </li>
-                        </ul>
-                    </div> -->
                 </div>
             </nav>
-
       </div>
-
     </div>
 
     <div class="overlay" @click="dismissNav"></div>
+
+
 </div>
 </template>
 
 <script>
 export default {
   name: 'Header',
-  data: {
+  data() {
+      return {
       navActive: false,
       circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+    }
   },
   methods: {
       openNav() {
@@ -111,7 +79,7 @@ export default {
         $('.overlay').removeClass('active');
             this.navActive = false;
 
-      }
+      },
   },
 
     created() {
@@ -140,15 +108,6 @@ a:focus {
 }
 
 
-.navbar {
-    /* padding: 15px 10px; */
-    background: #fff;
-    border: none;
-    border-radius: 0;
-    margin-bottom: 40px;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-}
-
 .navbar-btn {
     box-shadow: none;
     outline: none !important;
@@ -157,18 +116,21 @@ a:focus {
 
 .nav-c-1 {
     background-color: #bd0f72;
+    box-shadow: 0 2px 5px rgba(0,0,0,.26);
 }
 
 
-.nav-c-2 > button {
+.nav-c-3 > button {
     background-color: #bd0f72;
     border: none;
     vertical-align: middle;
 }
 
-.nav-c-2 > button > svg {
+.nav-c-3 > button > svg {
     color: #fff;
-    font-size: 25px;
+    font-size: 21px;
+    margin-top: 5px;
+
 }
 
 .nav-c-3 > span {
@@ -192,8 +154,8 @@ a:focus {
     overflow: hidden !important;
     width: 250px;
     position: fixed;
-    top: 62px;
-    left: -250px;
+    top: 50px;
+    right: -250px;
     height: 100vh;
     z-index: 999;
     background: #bd0f72;
@@ -204,7 +166,8 @@ a:focus {
 }
 
 #sidebar.active {
-    left: 0;
+    /* left: 0; */
+    right: 0;
 }
 
 #dismiss {
@@ -223,7 +186,7 @@ a:focus {
 }
 
 #dismiss:hover {
-    background: #fff;
+    background: #800d4e;
     color: #7386D5;
 }
 
@@ -242,11 +205,6 @@ a:focus {
     /* opacity: 1; */
 }
 
-#sidebar .sidebar-header {
-    padding: 20px;
-    background: #6d7fcc;
-}
-
 #sidebar ul.components {
     padding: 20px 0;
     border-bottom: 1px solid #47748b;
@@ -258,14 +216,15 @@ a:focus {
 }
 
 #sidebar ul li a {
-    padding: 10px;
+    padding: 10px 30px 10px;
     font-size: 1.1em;
     display: block;
+    text-align: right;
 }
 
 #sidebar ul li a:hover {
-    color: #7386D5;
-    background: #fff;
+    color: #fff;
+    background: #800d4e;
 }
 
 #sidebar ul li.active>a,
@@ -297,7 +256,7 @@ ul.CTAs {
 }
 
 ul.CTAs a {
-    text-align: center;
+    text-align: center !important;
     font-size: 0.9em !important;
     display: block;
     border-radius: 5px;
