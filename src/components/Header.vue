@@ -5,10 +5,7 @@
       <nav id="sidebar">
         <ul class="list-unstyled components">
           <li class="active">
-            <a href="#">About</a>
-          </li>
-          <li>
-            <a href="#">Portfolio</a>
+            <router-link to="/drive-picker">Drive Picker</router-link>
           </li>
         </ul>
         <ul class="list-unstyled CTAs">

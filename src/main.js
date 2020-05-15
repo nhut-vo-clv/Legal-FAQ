@@ -26,6 +26,7 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import App from './App'
+import { store } from './store';
 
 Vue.use(ElementUI, { locale })
 Vue.config.productionTip = false
@@ -37,6 +38,7 @@ firebase.auth().onAuthStateChanged(() => {
     app = new Vue({
       el: '#app',
       router,
+      store,
       render: h => h(App)
     })
   }

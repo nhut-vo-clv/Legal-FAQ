@@ -22,7 +22,7 @@ export default {
   methods: {
     loginWithGoogle() {
       var provider = new firebase.auth.GoogleAuthProvider();
-      //provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+      provider.addScope('https://www.googleapis.com/auth/drive');
       provider.setCustomParameters({
         login_hint: "user@one-line.com",
         hd: "one-line.com"
@@ -34,6 +34,7 @@ export default {
         .then(result => {
           // This gives you a Google Access Token. You can use it to access the Google API.
           var token = result.credential.accessToken;
+          localStorage.setItem("user_token", token);
           // The signed-in user info.
           var user = result.user;
           if (user) this.$router.replace("home");

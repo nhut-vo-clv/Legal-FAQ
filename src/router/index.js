@@ -4,6 +4,7 @@ import firebase from 'firebase'
 
 import HomePage from '@/components/HomePage'
 import Login from '@/components/Login'
+import DrivePicker from '@/components/DrivePicker'
 
 Vue.use(Router);
 
@@ -26,6 +27,14 @@ const router = new Router({
       path: '/home',
       name: 'HomePage',
       component: HomePage,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/drive-picker',
+      name: 'DrivePicker',
+      component: DrivePicker,
       meta: {
         requiresAuth: true
       }
