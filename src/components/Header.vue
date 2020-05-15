@@ -5,6 +5,15 @@
       <nav id="sidebar">
         <ul class="list-unstyled components">
           <li class="active">
+            <router-link to="/home">Home</router-link>
+          </li>
+          <li>
+            <router-link to="/inquiry">Create Request</router-link>
+          </li>
+          <li>
+            <router-link to="/setting">Setting</router-link>
+          </li>
+          <li>
             <router-link to="/drive-picker">Drive Picker</router-link>
           </li>
         </ul>

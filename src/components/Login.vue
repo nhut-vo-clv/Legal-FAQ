@@ -73,7 +73,7 @@ export default {
   left: 50%;
   top: 45%;
   transform: translate(-50%, -50%);
-}
+} 
 
 /* Google Button CSS */
 .social-btn-google {
