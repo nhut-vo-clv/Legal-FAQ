@@ -33,7 +33,7 @@ Vue.config.productionTip = false
 let app = '';
 /* eslint-disable no-new */
 firebase.auth().onAuthStateChanged(() => {
-  if(!app){
+  if (!app) {
     app = new Vue({
       el: '#app',
       router,

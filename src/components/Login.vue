@@ -1,11 +1,8 @@
 <template>
-  <div>
-    <img src="../assets/oneline-home-logo.png" alt="Oneline Directory" class="app-logo center-login-page" />
-    <button
-      class="social-btn social-btn-google js-google-btn shadowed-btn fxac"
-      type="button"
-      @click="loginWithGoogle()"
-    >
+  <div class="login-body">
+    <img src="../assets/oneline-home-logo.png" alt="Oneline Directory" />
+
+    <button class="social-btn-google fxac" type="button" @click="loginWithGoogle()">
       <i class="udi udi-google-plus social-icon"></i>
       Sign in with Google
       <span class="udi udi-circle-loader udi-small hidden"></span>
@@ -35,7 +32,6 @@ export default {
         .auth()
         .signInWithPopup(provider)
         .then(result => {
-          console.log("this", this);
           // This gives you a Google Access Token. You can use it to access the Google API.
           var token = result.credential.accessToken;
           // The signed-in user info.
@@ -55,31 +51,42 @@ export default {
           alert("Ooops. " + errorMessage);
         });
     }
+  },
+
+  created() {
+    if (firebase.auth().currentUser)
+      this.msg =
+        "Welcome " +
+        firebase.auth().currentUser.displayName +
+        " (" +
+        firebase.auth().currentUser.email +
+        ")";
   }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
-body {
-  background-color: #eee;
+<style scoped>
+.login-body {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
 }
 
+/* Google Button CSS */
 .social-btn-google {
   background-color: #fff;
   border: none;
   color: #686f7a;
-}
-
-.social-btn {
   cursor: pointer;
   box-shadow: 0 2px 2px 0 rgba(41, 48, 59, 0.24),
     0 0 2px 0 rgba(41, 48, 59, 0.12);
   border-radius: 2px;
-  margin-top: 10px;
   padding: 0 20px 0 10px;
   font-size: 16px;
   font-weight: 700;
+  margin: 20px auto 0 auto;
 }
 
 .social-btn-google .udi-google-plus {
@@ -95,17 +102,10 @@ body {
   width: 50px;
 }
 
-.loginbox-v4 .shadowed-btn {
-  font-weight: 700;
-}
-
 .fxac {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
-
-.center-login-page {
-  margin-top: 100px;
-}
+/* Google Button CSS */
 </style>

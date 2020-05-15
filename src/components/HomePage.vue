@@ -1,35 +1,23 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>   
-    <el-button type="primary" round @click="signout()">Sign Out</el-button>
+    <h1>{{ msg }}</h1>
   </div>
 </template>
 
 <script>
-import firebase from 'firebase'
+import firebase from "firebase";
 export default {
-  name: 'HomePage',
-  data () {
+  name: "HomePage",
+  data() {
     return {
-      msg: '',
-    }
+      msg: "Wellcome to home page"
+    };
   },
-  
-  methods: {
-     signout(){
-       firebase.auth().signOut().then(() => {
-         this.$router.replace('login')
-       })
-     }, 
-  },
- 
 
-  created() {
-    console.log();
-    if(firebase.auth().currentUser)
-      this.msg = 'Welcome '+firebase.auth().currentUser.displayName + ' (' +firebase.auth().currentUser.email + ')'; 
-  }
-}
+  methods: {},
+
+  created() {}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

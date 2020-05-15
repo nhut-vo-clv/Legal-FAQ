@@ -23,11 +23,6 @@ const router = new Router({
       component: Login
     },
     {
-      path: '/sign-up',
-      name: 'SignUp',
-      component: Login
-    },
-    {
       path: '/home',
       name: 'HomePage',
       component: HomePage,
