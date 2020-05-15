@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header/>
+    <Header v-if="this.$router.currentRoute.name !== 'Login'"/>
     <el-container>
       <el-main><router-view/></el-main>
     </el-container>
