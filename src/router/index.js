@@ -34,11 +34,6 @@ const router = new Router({
       }
     },
     {
-<<<<<<< HEAD
-      path: '/drive-picker',
-      name: 'DrivePicker',
-      component: DrivePicker,
-=======
       path: '/inquiry',
       name: 'Inquiry',
       component: Inquiry,
@@ -50,11 +45,18 @@ const router = new Router({
       path: '/setting',
       name: 'Setting',
       component: Setting,
->>>>>>> 4a2940794dbd2de79e0ebd874a14f2752061e5be
       meta: {
         requiresAuth: true
       }
-    }
+    },
+    {
+      path: '/drive-picker',
+      name: 'DrivePicker',
+      component: DrivePicker,
+      meta: {
+        requiresAuth: true
+      }
+    },
   ]
 });
 
