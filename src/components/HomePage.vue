@@ -10,7 +10,7 @@ export default {
   name: "HomePage",
   data() {
     return {
-      msg: "Wellcome to home page"
+      msg: "Welcome to home page"
     };
   },
 
@@ -22,4 +22,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.hello {
+  background: #fff;
+  padding: 20px 0;
+}
 </style>

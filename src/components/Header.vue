@@ -5,10 +5,13 @@
       <nav id="sidebar">
         <ul class="list-unstyled components">
           <li class="active">
-            <a href="#">About</a>
+            <router-link to="/home">Home</router-link>
           </li>
           <li>
-            <a href="#">Portfolio</a>
+            <router-link to="/inquiry">Create Request</router-link>
+          </li>
+          <li>
+            <router-link to="/setting">Setting</router-link>
           </li>
         </ul>
         <ul class="list-unstyled CTAs">

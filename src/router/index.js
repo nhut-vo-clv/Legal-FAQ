@@ -3,7 +3,9 @@ import Router from 'vue-router'
 import firebase from 'firebase'
 
 import HomePage from '@/components/HomePage'
+import Inquiry from '@/components/Inquiry'
 import Login from '@/components/Login'
+import Setting from '@/components/Setting'
 
 Vue.use(Router);
 
@@ -26,6 +28,22 @@ const router = new Router({
       path: '/home',
       name: 'HomePage',
       component: HomePage,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/inquiry',
+      name: 'Inquiry',
+      component: Inquiry,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/setting',
+      name: 'Setting',
+      component: Setting,
       meta: {
         requiresAuth: true
       }
