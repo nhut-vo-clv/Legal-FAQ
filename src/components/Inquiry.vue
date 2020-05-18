@@ -12,7 +12,7 @@
             <h3>Inquiry</h3>
             <el-form ref="form" :model="form" label-width="120px">
               <el-form-item label="Activity name">
-                <el-input v-model="form.name"></el-input>
+                <el-input v-model="form.name" size="small"></el-input>
               </el-form-item>
 
               <el-form-item>
