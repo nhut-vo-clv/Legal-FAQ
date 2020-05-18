@@ -20,6 +20,7 @@ const firebaseConfig = {
   measurementId: "G-S45FKF9LK8"
 };
 firebase.initializeApp(firebaseConfig)
+Vue.prototype.$db = firebase.firestore();
 /** Firebase End */
 
 import 'bootstrap'
@@ -27,9 +28,11 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 import App from './App'
 import { store } from './store';
+import { commonFunction } from './common_function'
 
 Vue.use(ElementUI, { locale })
 Vue.config.productionTip = false
+Vue.prototype.$commonFunction = commonFunction
 
 let app = '';
 /* eslint-disable no-new */
