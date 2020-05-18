@@ -29,7 +29,7 @@ body {
   background: #eee;
 }
 
-.el-button--primary {
+/* .el-button--primary {
   color: #fff;
   background-color: #bd0f72;
   border-color: #bd0f72;
@@ -39,5 +39,5 @@ body {
   color: #fff;
   background-color: #bd0f72;
   border-color: #bd0f72;
-}
+} */
 </style>

@@ -18,6 +18,7 @@
               <el-form-item>
                 <el-button type="primary" @click="onSubmit">Create</el-button>
                 <el-button>Cancel</el-button>
+                <el-button type="primary">Primary</el-button>
               </el-form-item>
             </el-form>
           </el-col>

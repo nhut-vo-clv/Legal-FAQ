@@ -2,8 +2,8 @@ import Vue from 'vue'
 import router from './router'
 /** Element UI Start */
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css';
-import 'element-ui/lib/theme-chalk/reset.css'
+import './styles/element-variables.scss'
+// import 'element-ui/lib/theme-chalk/reset.css'
 import locale from 'element-ui/lib/locale/lang/en'
 /** Element UI End */
 

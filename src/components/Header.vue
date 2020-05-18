@@ -4,7 +4,7 @@
       <!-- Sidebar  -->
       <nav id="sidebar">
         <ul class="list-unstyled components">
-          <li class="active">
+          <li>
             <router-link to="/home">Home</router-link>
           </li>
           <li>
@@ -53,9 +53,14 @@
 import firebase from "firebase";
 export default {
   name: "Header",
+  computed: {
+    currentPage() {
+      return this.$router.path;
+    }
+  },  
   data() {
     return {
-      navActive: false,
+      activeClass: 'active',
       sampleAvatarURL:
         "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
       userNm: ""
@@ -191,9 +196,9 @@ a:focus {
   top: 10px;
   right: 10px;
   cursor: pointer;
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
-  transition: all 0.3s;
+  -webkit-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
 }
 
 #dismiss:hover {
@@ -238,11 +243,10 @@ a:focus {
   background: #800d4e;
 }
 
-#sidebar ul li.active > a,
-a[aria-expanded="true"] {
-  color: #fff;
-  background: #800d4e;
-}
+#sidebar ul li a.router-link-exact-active {
+   background-color: indianred;
+   cursor: pointer;
+ }
 
 a[data-toggle="collapse"] {
   position: relative;
