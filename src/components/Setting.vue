@@ -45,7 +45,7 @@
                   <template></template>
                   <router-link
                     v-if="column.formatter.showReference === true"
-                    :to="'edit/' + row.documentId"
+                    :to="'edit-region/' + row.documentId"
                   >{{row[column.prop]}}</router-link>
                   <template
                     v-if="column.formatter.formatDate === true"

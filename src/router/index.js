@@ -7,6 +7,7 @@ import Inquiry from '@/components/Inquiry'
 import Login from '@/components/Login'
 import DrivePicker from '@/components/DrivePicker'
 import Setting from '@/components/Setting'
+import EditRegion from '@/components/EditRegion'
 
 Vue.use(Router);
 
@@ -57,6 +58,14 @@ const router = new Router({
         requiresAuth: true
       }
     },
+    {
+      path: '/edit-region/:id',
+      name: 'EditRegion',
+      component: EditRegion,
+      meta: {
+        requiresAuth: true
+      }
+    }
   ]
 });
 
