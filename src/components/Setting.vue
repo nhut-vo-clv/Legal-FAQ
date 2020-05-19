@@ -29,39 +29,7 @@
             :sm="{span: 16, offset: 4}"
           >
             <h3>Region</h3>
-            <el-button type="primary" @click="toggleFilterToolbar">Show/Hide</el-button>
-            <div id="filter-toolbar">
-              <el-dropdown>
-                <span class="el-dropdown-link">
-                  -- Choose field --
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>Test</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-dropdown>
-                <span class="el-dropdown-link">
-                  -- Oper --
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>Test</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-dropdown>
-                <span class="el-dropdown-link">
-                  -- Value --
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>Test</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-button>AND</el-button>
-              <el-button>OR</el-button>
-              <el-button>X</el-button>
-            </div>
+            <FilterTable/>
             <el-table :data="regionData" stripe style="width: 100%">
               <el-table-column
                 v-for="column in columns"
@@ -69,13 +37,19 @@
                 :prop="column.prop"
                 :label="column.label"
                 :min-width="column.minWidth"
-                :formatter="column.formatter"
               >
-                <template slot-scope="scope" v-if="column.formatter === true">
-                  <el-tag
-                    :type="scope.row.name === 'Test' ? 'primary' : 'success'"
-                    close-transition
-                  >{{scope.row.tag}}</el-tag>
+                <template #default="{row}" v-if="column.formatter">
+                  <router-link v-if="column.formatter.classIcon" :to="'edit/' + row.documentId">
+                    <i :class="column.formatter.classIcon"></i>
+                  </router-link>
+                  <template></template>
+                  <router-link
+                    v-if="column.formatter.showReference === true"
+                    :to="'edit/' + row.documentId"
+                  >{{row[column.prop]}}</router-link>
+                  <template
+                    v-if="column.formatter.formatDate === true"
+                  >{{$commonFunction.formatDate(row[column.prop])}}</template>
                 </template>
               </el-table-column>
             </el-table>
@@ -87,8 +61,13 @@
 </template>
 
 <script>
+import FilterTable from "./FilterTable";
+
 export default {
   name: "Setting",
+  components: {
+    FilterTable
+  },
   data() {
     return {
       form: {
@@ -96,15 +75,28 @@ export default {
       },
       columns: [
         {
+          prop: "icon",
+          label: "",
+          minWidth: "35px",
+          formatter: {
+            classIcon: "el-icon-info"
+          }
+        },
+        {
           prop: "name",
           label: "Name",
           minWidth: "180px",
-          formatter: true
+          formatter: {
+            showReference: true
+          }
         },
         {
           prop: "created",
           label: "Created",
-          minWidth: "180px"
+          minWidth: "180px",
+          formatter: {
+            formatDate: true
+          }
         },
         {
           prop: "created_by",
@@ -114,7 +106,10 @@ export default {
         {
           prop: "updated",
           label: "Updated",
-          minWidth: "180px"
+          minWidth: "180px",
+          formatter: {
+            formatDate: true
+          }
         },
         {
           prop: "updated_by",
@@ -150,13 +145,9 @@ export default {
             let obj = {};
             var data = doc.data();
             obj.name = data.name;
-            obj.created = this.$commonFunction.formatDate(
-              data.created.toDate()
-            );
+            obj.created = data.created.toDate();
             obj.created_by = data.created_by;
-            obj.updated = this.$commonFunction.formatDate(
-              data.updated.toDate()
-            );
+            obj.updated = data.updated.toDate();
             obj.updated_by = data.updated_by;
             obj.documentId = doc.id;
             this.regionData.push(obj);
@@ -169,8 +160,35 @@ export default {
     onSave() {
       console.log("submit!");
     },
-    toggleFilterToolbar() {
-      $("#filter-toolbar").toggle();
+    addAndCondition() {
+      let conditionHTML = `<el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    -- Choose field --
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>Test</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+                <el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    -- Oper --
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>Test</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+                <el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    -- Value --
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>Test</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>`;
+                $('#filter-toolbar').append(conditionHTML);
     }
   },
   created() {
