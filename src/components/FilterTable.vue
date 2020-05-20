@@ -6,9 +6,18 @@
       </button>
     </el-row>
     <div id="filter-toolbar">
-    <el-row size="small" v-for="(andLine, addIndex) in andLines" :key="addIndex"  class="filter-area">
-     
-        <el-select size="small" @change="filerOperWithField" v-model="andLines[addIndex].field" placeholder="-- Choose field --">
+      <el-row
+        size="small"
+        v-for="(andLine, addIndex) in andLines"
+        :key="addIndex"
+        class="filter-area"
+      >
+        <el-select
+          size="small"
+          @change="filerOperWithField"
+          v-model="andLines[addIndex].field"
+          placeholder="-- Choose field --"
+        >
           <el-option
             v-for="(field, fieldIndex) in fieldsQuery"
             :key="fieldIndex"
@@ -24,23 +33,21 @@
             :value="oper.type"
           />
         </el-select>
-        <el-input size="small" v-if="operType === 'string'" v-model="andLines[addIndex].value"/>
-        <el-select size="small" v-if="operType === 'boolean'" v-model="andLines[addIndex].value" placeholder="-- Value --"/>
-          <el-option
-            label="True"
-            v-bind:value="true"
-          />
-          <el-option
-            label="False"
-            v-bind:value="false"
-          />
+        <el-input size="small" v-if="operType === 'string'" v-model="andLines[addIndex].value" />
+        <el-select
+          size="small"
+          v-if="operType === 'boolean'"
+          v-model="andLines[addIndex].value"
+          placeholder="-- Value --"
+        >
+          <el-option label="True" v-bind:value="true" />
+          <el-option label="False" v-bind:value="false" />
         </el-select>
         <el-button size="small" @click="addAndLine">AND</el-button>
         <!-- <el-button @click="addOrLine(addIndex)">OR</el-button> -->
         <el-button size="small" @click="removeAndLine(addIndex)">X</el-button>
-     
 
-      <!-- <div v-for="(orLine, orIndex) in andLines[addIndex].orLines" :key="orIndex">
+        <!-- <div v-for="(orLine, orIndex) in andLines[addIndex].orLines" :key="orIndex">
         <div>
           Or
           <el-select
@@ -60,13 +67,11 @@
           <el-input v-model="andLines[addIndex].orLines[orIndex].value" />
           <el-button @click="removeOrLine(addIndex, orIndex)">X</el-button>
         </div>
-      </div> -->
-
-       
-    </el-row> 
-    <el-row class="row-padding">
+        </div>-->
+      </el-row>
+      <el-row class="row-padding">
         <el-button @click="runFilter">Run</el-button>
-    </el-row>
+      </el-row>
     </div>
   </div>
 </template>
@@ -80,7 +85,7 @@ export default {
     return {
       andLines: [],
       andBlockRemoval: true,
-      operType: '',
+      operType: "",
       fieldsQuery: [],
       operators: [],
       operatorMasterData: [
@@ -98,7 +103,7 @@ export default {
           applyTo: ["string"]
         },
         { type: "in", label: "is one of", applyTo: ["string"] }
-      ],
+      ]
     };
   },
   watch: {
@@ -125,7 +130,7 @@ export default {
     removeAndLine(lineId) {
       if (!this.andBlockRemoval) {
         this.andLines.splice(lineId, 1);
-      }else{
+      } else {
         this.andLines = [];
         this.addAndLine();
       }
@@ -137,21 +142,31 @@ export default {
       this.$emit("filterQuery", this.andLines);
     },
     toggleFilterToolbar() {
-      $("#filter-toolbar").toggle();
-      console.log(this.$el.querySelector(".toggle-class").classList);
-      let classArr = this.$el.querySelector(".toggle-class").classList.toArray();
-      if(classArr.indexOf("fa-thumbs-down") != -1)
-        this.$el.querySelector(".toggle-class").classList.toggle("fa-thumbs-up");
-      else
-        this.$el.querySelector(".toggle-class").classList.toggle("fa-thumbs-down");
+      var divFilterToolbar = document.getElementById("filter-toolbar");
+      if (divFilterToolbar.style.display === "none") {
+        divFilterToolbar.style.display = "block";
+      } else {
+        divFilterToolbar.style.display = "none";
+      }
 
+      let classArr = this.$el.querySelector(".toggle-class").classList;
+      if (classArr.contains("fa-thumbs-down"))
+        this.$el
+          .querySelector(".toggle-class")
+          .classList.toggle("fa-thumbs-up");
+      else
+        this.$el
+          .querySelector(".toggle-class")
+          .classList.toggle("fa-thumbs-down");
     },
     filerOperWithField(val) {
       let findType = this.fieldsQuery.filter(x => x.prop === val);
 
-      if(findType && findType.length === 1){
-        this.operType = findType[0].type
-        this.operators = this.operatorMasterData.filter(x => x.applyTo.indexOf(this.operType) !== -1).map(x => x);
+      if (findType && findType.length === 1) {
+        this.operType = findType[0].type;
+        this.operators = this.operatorMasterData
+          .filter(x => x.applyTo.indexOf(this.operType) !== -1)
+          .map(x => x);
       }
     }
   },
@@ -160,8 +175,8 @@ export default {
     this.addAndLine();
   },
   computed: {
-    ...mapGetters(['getFieldsQuery'])
-  },
+    ...mapGetters(["getFieldsQuery"])
+  }
 };
 </script>
 
