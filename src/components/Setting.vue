@@ -10,14 +10,14 @@
             :sm="{span: 16, offset: 4}"
           >
             <h3>Setting</h3>
-            <el-form ref="form" :model="form" label-width="120px">
+            <el-form ref="form" :model="form" label-width="120px" size="small">
               <el-form-item label="Super Email">
                 <el-input v-model="form.superEmail"></el-input>
               </el-form-item>
 
-              <el-form-item>
-                <el-button type="primary" @click="onSave">Save</el-button>
-              </el-form-item>
+              
+              <el-button type="primary" @click="onSave">Save</el-button>
+              
             </el-form>
           </el-col>
         </el-row>
@@ -30,6 +30,7 @@
           >
             <h3>Region</h3>
             <FilterTable v-on:filterQuery="loadRegion" />
+          </el-col>
             <el-table :data="regionData" stripe style="width: 100%">
               <el-table-column
                 v-for="column in columns"
@@ -53,7 +54,7 @@
                 </template>
               </el-table-column>
             </el-table>
-          </el-col>
+          
         </el-row>
       </el-main>
     </el-container>

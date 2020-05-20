@@ -36,9 +36,17 @@
             <div class="nav-c-3">
               <span class="displayName">{{userNm}}</span>
               <el-avatar :size="35" :src="photoURL"></el-avatar>
-              <button type="button" id="sidebarCollapse" @click="openNav">
+              <div class="wrap-bar-button">
+                <div class="bar-container" @click="changeBar">
+                  <div class="bar1"></div>
+                  <div class="bar2"></div>
+                  <div class="bar3"></div>
+                </div>
+              </div>
+
+              <!-- <button type="button" id="sidebarCollapse" @click="openNav">
                 <i class="fas fa-bars"></i>
-              </button>
+              </button>-->
             </div>
           </div>
         </nav>
@@ -57,10 +65,10 @@ export default {
     currentPage() {
       return this.$router.path;
     }
-  },  
+  },
   data() {
     return {
-      activeClass: 'active',
+      activeClass: "active",
       sampleAvatarURL:
         "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
       userNm: ""
@@ -85,6 +93,7 @@ export default {
       $("#sidebar").removeClass("active");
       $(".overlay").removeClass("active");
       this.navActive = false;
+      this.$el.querySelector(".bar-container").classList.toggle("change");
     },
 
     signout() {
@@ -94,6 +103,23 @@ export default {
         .then(() => {
           this.$router.replace("login");
         });
+    },
+
+    changeBar() {
+      //      x.classList.toggle("change");
+
+      this.$el.querySelector(".bar-container").classList.toggle("change");
+      if (this.navActive) {
+        $("#sidebar").removeClass("active");
+        $(".overlay").removeClass("active");
+        this.navActive = false;
+      } else {
+        $("#sidebar").addClass("active");
+        $(".overlay").addClass("active");
+        $(".collapse.in").toggleClass("in");
+        $("a[aria-expanded=true]").attr("aria-expanded", "false");
+        this.navActive = true;
+      }
     }
   },
 
@@ -111,6 +137,42 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/* .wrap-bar-button {
+  display: inline-block;
+} */
+.wrap-bar-button {
+  padding: 3px 0 0 10px;
+}
+
+.bar-container {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.bar1,
+.bar2,
+.bar3 {
+  width: 27px;
+  height: 3px;
+  background-color: #fff;
+  margin: 5px 0 0 0;
+  transition: 0.4s;
+}
+
+.change .bar1 {
+  -webkit-transform: rotate(-45deg) translate(-6px, 6px);
+  transform: rotate(-45deg) translate(-6px, 6px);
+}
+
+.change .bar2 {
+  opacity: 0;
+}
+
+.change .bar3 {
+  -webkit-transform: rotate(45deg) translate(-5px, -5px);
+  transform: rotate(45deg) translate(-5px, -5px);
+}
+
 /*
     DEMO STYLE
 */
@@ -136,6 +198,10 @@ a:focus {
 .nav-c-1 {
   background-color: #bd0f72;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+}
+
+.nav-c-3 {
+  display: flex;
 }
 
 .nav-c-3 > button {
@@ -244,9 +310,9 @@ a:focus {
 }
 
 #sidebar ul li a.router-link-exact-active {
-   background-color: indianred;
-   cursor: pointer;
- }
+  background-color: indianred;
+  cursor: pointer;
+}
 
 a[data-toggle="collapse"] {
   position: relative;
@@ -291,7 +357,6 @@ a.article:hover {
 
 .displayName {
   color: #fff;
-  font-weight: 300;
-  padding-right: 10px;
+  padding: 5px 10px;
 }
 </style>

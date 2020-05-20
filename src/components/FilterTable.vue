@@ -1,9 +1,14 @@
 <template>
   <div>
-    <i @click="toggleFilterToolbar" class="el-icon-share"></i>
-    <div v-for="(andLine, addIndex) in andLines" :key="addIndex" id="filter-toolbar">
-      <div>
-        <el-select @change="filerOperWithField" v-model="andLines[addIndex].field" placeholder="-- Choose field --">
+    <el-row class="row-padding">
+      <button type="button" @click="toggleFilterToolbar">
+        <i class="toggle-class fas fa-thumbs-up"></i>
+      </button>
+    </el-row>
+    <div id="filter-toolbar">
+    <el-row size="small" v-for="(andLine, addIndex) in andLines" :key="addIndex"  class="filter-area">
+     
+        <el-select size="small" @change="filerOperWithField" v-model="andLines[addIndex].field" placeholder="-- Choose field --">
           <el-option
             v-for="(field, fieldIndex) in fieldsQuery"
             :key="fieldIndex"
@@ -11,7 +16,7 @@
             :value="field.prop"
           />
         </el-select>
-        <el-select v-model="andLines[addIndex].oper" placeholder="-- Oper --">
+        <el-select size="small" v-model="andLines[addIndex].oper" placeholder="-- Oper --">
           <el-option
             v-for="(oper, operIndex) in operators"
             :key="operIndex"
@@ -19,8 +24,8 @@
             :value="oper.type"
           />
         </el-select>
-        <el-input v-if="operType === 'string'" v-model="andLines[addIndex].value" />
-        <el-select v-if="operType === 'boolean'" v-model="andLines[addIndex].value" placeholder="-- Value --">
+        <el-input size="small" v-if="operType === 'string'" v-model="andLines[addIndex].value"/>
+        <el-select size="small" v-if="operType === 'boolean'" v-model="andLines[addIndex].value" placeholder="-- Value --"/>
           <el-option
             label="True"
             v-bind:value="true"
@@ -30,12 +35,12 @@
             v-bind:value="false"
           />
         </el-select>
-        <el-button @click="addAndLine">AND</el-button>
+        <el-button size="small" @click="addAndLine">AND</el-button>
         <!-- <el-button @click="addOrLine(addIndex)">OR</el-button> -->
-        <el-button @click="removeAndLine(addIndex)">X</el-button>
-      </div>
+        <el-button size="small" @click="removeAndLine(addIndex)">X</el-button>
+     
 
-      <div v-for="(orLine, orIndex) in andLines[addIndex].orLines" :key="orIndex">
+      <!-- <div v-for="(orLine, orIndex) in andLines[addIndex].orLines" :key="orIndex">
         <div>
           Or
           <el-select
@@ -55,9 +60,14 @@
           <el-input v-model="andLines[addIndex].orLines[orIndex].value" />
           <el-button @click="removeOrLine(addIndex, orIndex)">X</el-button>
         </div>
-      </div>
+      </div> -->
+
+       
+    </el-row> 
+    <el-row class="row-padding">
+        <el-button @click="runFilter">Run</el-button>
+    </el-row>
     </div>
-    <el-button @click="runFilter">Run</el-button>
   </div>
 </template>
 
@@ -128,6 +138,13 @@ export default {
     },
     toggleFilterToolbar() {
       $("#filter-toolbar").toggle();
+      console.log(this.$el.querySelector(".toggle-class").classList);
+      let classArr = this.$el.querySelector(".toggle-class").classList.toArray();
+      if(classArr.indexOf("fa-thumbs-down") != -1)
+        this.$el.querySelector(".toggle-class").classList.toggle("fa-thumbs-up");
+      else
+        this.$el.querySelector(".toggle-class").classList.toggle("fa-thumbs-down");
+
     },
     filerOperWithField(val) {
       let findType = this.fieldsQuery.filter(x => x.prop === val);
@@ -147,3 +164,22 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.row-padding {
+  padding: 10px 0;
+}
+
+.row-padding > button {
+  border: none;
+  background-color: #fff;
+}
+
+.filter-area {
+  padding: 5px 0;
+}
+
+.filter-area > .el-input {
+  width: auto;
+}
+</style>
