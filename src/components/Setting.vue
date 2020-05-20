@@ -1,6 +1,6 @@
 <template>
   <div class="body-wrap">
-    <el-container>
+    <el-container v-loading.fullscreen.lock="fullscreenLoading">
       <el-main>
         <el-row>
           <el-col
@@ -29,7 +29,7 @@
             :sm="{span: 16, offset: 4}"
           >
             <h3>Region</h3>
-            <FilterTable/>
+            <FilterTable v-on:filterQuery="loadRegion" />
             <el-table :data="regionData" stripe style="width: 100%">
               <el-table-column
                 v-for="column in columns"
@@ -61,6 +61,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import FilterTable from "./FilterTable";
 
 export default {
@@ -88,7 +89,8 @@ export default {
           minWidth: "180px",
           formatter: {
             showReference: true
-          }
+          },
+          activeFilterQuery: true
         },
         {
           prop: "created",
@@ -117,14 +119,15 @@ export default {
           minWidth: "180px"
         }
       ],
-      regionData: []
+      regionData: [],
+      fullscreenLoading: false
     };
   },
   methods: {
     loadSuperEmail() {
       this.$db
-        .collection(this.$store.state.collections.common)
-        .doc(this.$store.state.documents.superEmail)
+        .collection(this.getCommonCollection)
+        .doc(this.getSuperEmailDocument)
         .get()
         .then(snapshot => {
           if (snapshot.exists) {
@@ -136,10 +139,13 @@ export default {
           }
         });
     },
-    loadRegion() {
-      this.$db
-        .collection(this.$store.state.collections.region)
-        .get()
+    loadRegion(query) {
+      var ref = this.$db.collection(this.getRegionCollection);
+
+      for (var i = 0; i < 2; i++) {
+        ref = ref.where("name", "==", "Test");
+      }
+        ref.get()
         .then(snapshot => {
           snapshot.docs.forEach(doc => {
             let obj = {};
@@ -152,48 +158,29 @@ export default {
             obj.documentId = doc.id;
             this.regionData.push(obj);
           });
+          this.fullscreenLoading = false;
         })
         .catch(error => {
           console.log(error);
         });
     },
-    onSave() {
-      console.log("submit!");
-    },
-    addAndCondition() {
-      let conditionHTML = `<el-dropdown trigger="click">
-                  <span class="el-dropdown-link">
-                    -- Choose field --
-                    <i class="el-icon-arrow-down el-icon--right"></i>
-                  </span>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>Test</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-                <el-dropdown trigger="click">
-                  <span class="el-dropdown-link">
-                    -- Oper --
-                    <i class="el-icon-arrow-down el-icon--right"></i>
-                  </span>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>Test</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-                <el-dropdown trigger="click">
-                  <span class="el-dropdown-link">
-                    -- Value --
-                    <i class="el-icon-arrow-down el-icon--right"></i>
-                  </span>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>Test</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>`;
-                $('#filter-toolbar').append(conditionHTML);
-    }
+    onSave() {}
   },
-  created() {
+  async created() {
+    this.fullscreenLoading = true;
+    this.$store.commit(
+      "SET_FIELDS_QUERY",
+      this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
+    );
     this.loadSuperEmail();
     this.loadRegion();
+  },
+  computed: {
+    ...mapGetters([
+      "getCommonCollection",
+      "getRegionCollection",
+      "getSuperEmailDocument"
+    ])
   }
 };
 </script>

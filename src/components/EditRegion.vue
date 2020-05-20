@@ -1,6 +1,6 @@
 <template>
   <div class="body-wrap">
-    <el-container>
+    <el-container v-loading.fullscreen.lock="fullscreenLoading">
       <el-main>
         <el-row>
           <el-col
@@ -16,7 +16,7 @@
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" @click="onSubmit">Save</el-button>\
+                <el-button type="primary" @click="onSubmit">Save</el-button>
               </el-form-item>
             </el-form>
           </el-col>
@@ -35,12 +35,14 @@ export default {
     return {
       form: {
         name: ""
-      }
+      },
+      fullscreenLoading: false
     };
   },
 
   methods: {
     loadRegionData() {
+      this.fullscreenLoading = true;
       this.$db
         .collection(this.$store.state.collections.region)
         .doc(this.$route.params.id)
@@ -49,6 +51,7 @@ export default {
           if (snapshot.exists) {
             let data = snapshot.data();
             this.form.name = data.name;
+            this.fullscreenLoading = false;
           } else {
             // snapshot.data() will be undefined in this case
             console.log("No such document!");

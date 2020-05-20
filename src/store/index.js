@@ -13,8 +13,27 @@ export const store = new Vuex.Store({
     },
     documents: {
       superEmail: 'super_email'
-    }
+    },
+    fieldsQuery: [],
+    filterQuery: ''
   },
   mutations: {
+    SET_FIELDS_QUERY(state, arrField) {
+      state.fieldsQuery = arrField;
+    }
+  },
+  getters: {
+    getFieldsQuery: state => {
+      return state.fieldsQuery;
+    },
+    getCommonCollection: state => {
+      return state.collections.common;
+    },
+    getRegionCollection: state => {
+      return state.collections.region;
+    },
+    getSuperEmailDocument: state => {
+      return state.documents.superEmail;
+    }
   }
 });
