@@ -90,7 +90,15 @@ export default {
           formatter: {
             showReference: true
           },
-          activeFilterQuery: true
+          activeFilterQuery: true,
+          type: "string"
+        },
+        {
+          prop: "active",
+          label: "Active",
+          minWidth: "180px",
+          activeFilterQuery: true,
+          type: "boolean"
         },
         {
           prop: "created",
@@ -139,22 +147,25 @@ export default {
           }
         });
     },
-    loadRegion(query) {
+    async loadRegion(arrQuery) {
+      this.fullscreenLoading = true;
+      this.regionData = [];
       var ref = this.$db.collection(this.getRegionCollection);
 
-      for (var i = 0; i < 2; i++) {
-        ref = ref.where("name", "==", "Test");
+      for (let i in arrQuery) {
+        let query = arrQuery[i];
+        ref = ref.where(query.field, query.oper, query.value);
       }
-        ref.get()
+      ref
+        .get()
         .then(snapshot => {
           snapshot.docs.forEach(doc => {
             let obj = {};
             var data = doc.data();
-            obj.name = data.name;
+            obj = data;
+            obj.active = data.active === true ? "True" : "False";
             obj.created = data.created.toDate();
-            obj.created_by = data.created_by;
             obj.updated = data.updated.toDate();
-            obj.updated_by = data.updated_by;
             obj.documentId = doc.id;
             this.regionData.push(obj);
           });
@@ -167,7 +178,6 @@ export default {
     onSave() {}
   },
   async created() {
-    this.fullscreenLoading = true;
     this.$store.commit(
       "SET_FIELDS_QUERY",
       this.columns.filter(x => x.activeFilterQuery === true).map(x => x)

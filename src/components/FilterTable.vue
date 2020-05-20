@@ -3,7 +3,7 @@
     <i @click="toggleFilterToolbar" class="el-icon-share"></i>
     <div v-for="(andLine, addIndex) in andLines" :key="addIndex" id="filter-toolbar">
       <div>
-        <el-select v-model="andLines[addIndex].field" placeholder="-- Choose field --">
+        <el-select @change="filerOperWithField" v-model="andLines[addIndex].field" placeholder="-- Choose field --">
           <el-option
             v-for="(field, fieldIndex) in fieldsQuery"
             :key="fieldIndex"
@@ -19,9 +19,19 @@
             :value="oper.type"
           />
         </el-select>
-        <el-input v-model="andLines[addIndex].value" />
+        <el-input v-if="operType === 'string'" v-model="andLines[addIndex].value" />
+        <el-select v-if="operType === 'boolean'" v-model="andLines[addIndex].value" placeholder="-- Value --">
+          <el-option
+            label="True"
+            v-bind:value="true"
+          />
+          <el-option
+            label="False"
+            v-bind:value="false"
+          />
+        </el-select>
         <el-button @click="addAndLine">AND</el-button>
-        <el-button @click="addOrLine(addIndex)">OR</el-button>
+        <!-- <el-button @click="addOrLine(addIndex)">OR</el-button> -->
         <el-button @click="removeAndLine(addIndex)">X</el-button>
       </div>
 
@@ -60,26 +70,24 @@ export default {
     return {
       andLines: [],
       andBlockRemoval: true,
+      operType: '',
       fieldsQuery: [],
-      operators: [
-        { type: "=", label: "is", apply_to: ["number", "string"] },
-        { type: "!=", label: "is not", apply_to: ["number", "string"] },
-        { type: ">", label: "greater than", apply_to: ["number", "string"] },
-        { type: "<", label: "less than", apply_to: ["number", "string"] },
+      operators: [],
+      operatorMasterData: [
+        { type: "==", label: "is", applyTo: ["string", "boolean"] },
+        { type: ">", label: "greater than", applyTo: ["string"] },
+        { type: "<", label: "less than", applyTo: ["string"] },
         {
           type: ">=",
           label: "greater than or is",
-          apply_to: ["number", "string"]
+          applyTo: ["string"]
         },
         {
           type: "<=",
           label: "less than or is",
-          apply_to: ["number", "string"]
+          applyTo: ["string"]
         },
-        { type: "contains", label: "contains", apply_to: ["string"] },
-        { type: "begins_with", label: "starts with", apply_to: ["string"] },
-        { type: "ends with", label: "ends with", apply_to: ["string"] },
-        { type: "in", label: "is one of", apply_to: ["string"] }
+        { type: "in", label: "is one of", applyTo: ["string"] }
       ],
     };
   },
@@ -107,33 +115,27 @@ export default {
     removeAndLine(lineId) {
       if (!this.andBlockRemoval) {
         this.andLines.splice(lineId, 1);
+      }else{
+        this.andLines = [];
+        this.addAndLine();
       }
     },
     removeOrLine(addLineIndex, orLineIndex) {
       this.andLines[addLineIndex].orLines.splice(orLineIndex, 1);
     },
     runFilter() {
-      let query = "";
-      let andKey = "AND";
-      let orKey = "OR";
-      for (let i in this.andLines) {
-        if (query) query += andKey;
-        query +=
-          this.andLines[i].field +
-          this.andLines[i].oper +
-          this.andLines[i].value;
-        for (let j in this.andLines[i].orLines) {
-          query +=
-            orKey +
-            this.andLines[i].field +
-            this.andLines[i].oper +
-            this.andLines[i].value;
-        }
-      }
-      this.$emit("filterQuery", query);
+      this.$emit("filterQuery", this.andLines);
     },
     toggleFilterToolbar() {
       $("#filter-toolbar").toggle();
+    },
+    filerOperWithField(val) {
+      let findType = this.fieldsQuery.filter(x => x.prop === val);
+
+      if(findType && findType.length === 1){
+        this.operType = findType[0].type
+        this.operators = this.operatorMasterData.filter(x => x.applyTo.indexOf(this.operType) !== -1).map(x => x);
+      }
     }
   },
   mounted() {
