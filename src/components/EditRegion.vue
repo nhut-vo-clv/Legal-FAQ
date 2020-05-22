@@ -28,6 +28,7 @@
 
 <script>
 import firebase from "firebase";
+import { mapGetters } from "vuex";
 
 export default {
   name: "EditRegion",
@@ -36,6 +37,7 @@ export default {
       form: {
         name: ""
       },
+      paramDocId: this.$route.params.id,
       fullscreenLoading: false
     };
   },
@@ -59,20 +61,27 @@ export default {
         });
     },
     onSubmit() {
-      this.$db
-        .collection(this.$store.state.collections.region)
-        .doc(this.$route.params.id)
-        .update(this.form)
-        .then(result => {
-          this.$alert("Region saved successfully", "Notification", {
-            confirmButtonText: "OK"
+      try {
+        this.$db
+          .collection(this.getRegionCollection)
+          .doc(this.paramDocId)
+          .update(this.form)
+          .then(result => {
+            this.$commonFunction.alertSuccess();
+          })
+          .catch(error => {
+            this.$commonFunction.alertError(error);
           });
-        });
+      } catch (error) {
+        this.$commonFunction.alertError(error.message);
+      }
     }
   },
-
   created() {
     this.loadRegionData();
+  },
+  computed: {
+    ...mapGetters(["getRegionCollection", "getSaveSuccessfullyMessage"])
   }
 };
 </script>

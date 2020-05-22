@@ -10,14 +10,19 @@
             :sm="{span: 16, offset: 4}"
           >
             <h3>Setting</h3>
-            <el-form ref="form" :model="form" label-width="120px" size="small">
+            <el-form ref="form" :model="commonSuperEmail" label-width="120px" size="small">
               <el-form-item label="Super Email">
-                <el-input v-model="form.superEmail"></el-input>
+                <el-input v-model="commonSuperEmail.email"></el-input>
               </el-form-item>
 
-              
-              <el-button type="primary" @click="onSave">Save</el-button>
-              
+              <el-button type="primary" @click="onSaveSuperEmail">Save</el-button>
+            </el-form>
+            <el-form ref="form" :model="commonEmailUpload" label-width="120px" size="small">
+              <el-form-item label="Owner email upload">
+                <el-input v-model="commonEmailUpload.email"></el-input>
+              </el-form-item>
+
+              <el-button type="primary" @click="onSaveEmailUpload">Save</el-button>
             </el-form>
           </el-col>
         </el-row>
@@ -31,30 +36,29 @@
             <h3>Region</h3>
             <FilterTable v-on:filterQuery="loadRegion" />
           </el-col>
-            <el-table :data="regionData" stripe style="width: 100%">
-              <el-table-column
-                v-for="column in columns"
-                :key="column.label"
-                :prop="column.prop"
-                :label="column.label"
-                :min-width="column.minWidth"
-              >
-                <template #default="{row}" v-if="column.formatter">
-                  <router-link v-if="column.formatter.classIcon" :to="'edit/' + row.documentId">
-                    <i :class="column.formatter.classIcon"></i>
-                  </router-link>
-                  <template></template>
-                  <router-link
-                    v-if="column.formatter.showReference === true"
-                    :to="'edit-region/' + row.documentId"
-                  >{{row[column.prop]}}</router-link>
-                  <template
-                    v-if="column.formatter.formatDate === true"
-                  >{{$commonFunction.formatDate(row[column.prop])}}</template>
-                </template>
-              </el-table-column>
-            </el-table>
-          
+          <el-table :data="regionData" stripe style="width: 100%">
+            <el-table-column
+              v-for="column in columns"
+              :key="column.label"
+              :prop="column.prop"
+              :label="column.label"
+              :min-width="column.minWidth"
+            >
+              <template #default="{row}" v-if="column.formatter">
+                <router-link v-if="column.formatter.classIcon" :to="'edit/' + row.documentId">
+                  <i :class="column.formatter.classIcon"></i>
+                </router-link>
+                <template></template>
+                <router-link
+                  v-if="column.formatter.showReference === true"
+                  :to="'edit-region/' + row.documentId"
+                >{{row[column.prop]}}</router-link>
+                <template
+                  v-if="column.formatter.formatDate === true"
+                >{{$commonFunction.formatDate(row[column.prop])}}</template>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-row>
       </el-main>
     </el-container>
@@ -72,8 +76,11 @@ export default {
   },
   data() {
     return {
-      form: {
-        superEmail: ""
+      commonSuperEmail: {
+        email: ""
+      },
+      commonEmailUpload: {
+        email: ""
       },
       columns: [
         {
@@ -141,7 +148,22 @@ export default {
         .then(snapshot => {
           if (snapshot.exists) {
             let data = snapshot.data();
-            this.form.superEmail = data.email;
+            this.commonSuperEmail.email = data.email;
+          } else {
+            // snapshot.data() will be undefined in this case
+            console.log("No such document!");
+          }
+        });
+    },
+    loadEmailUpload() {
+      this.$db
+        .collection(this.getCommonCollection)
+        .doc(this.getEmailUploadDocument)
+        .get()
+        .then(snapshot => {
+          if (snapshot.exists) {
+            let data = snapshot.data();
+            this.commonEmailUpload.email = data.email;
           } else {
             // snapshot.data() will be undefined in this case
             console.log("No such document!");
@@ -157,26 +179,53 @@ export default {
         let query = arrQuery[i];
         ref = ref.where(query.field, query.oper, query.value);
       }
-      ref
-        .get()
-        .then(snapshot => {
-          snapshot.docs.forEach(doc => {
-            let obj = {};
-            var data = doc.data();
-            obj = data;
-            obj.active = data.active === true ? "True" : "False";
-            obj.created = data.created.toDate();
-            obj.updated = data.updated.toDate();
-            obj.documentId = doc.id;
-            this.regionData.push(obj);
+      try {
+        ref
+          .get()
+          .then(snapshot => {
+            snapshot.docs.forEach(doc => {
+              let obj = {};
+              var data = doc.data();
+              obj = data;
+              obj.active = data.active === true ? "True" : "False";
+              obj.created = data.created.toDate();
+              obj.updated = data.updated.toDate();
+              obj.documentId = doc.id;
+              this.regionData.push(obj);
+            });
+            this.fullscreenLoading = false;
+          })
+          .catch(error => {
+            console.log(error);
           });
-          this.fullscreenLoading = false;
-        })
-        .catch(error => {
-          console.log(error);
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+    onSaveSuperEmail() {
+      let obj = this.$commonFunction.getSystemField(true);
+      obj.email = this.commonSuperEmail.email;
+
+      this.$db
+        .collection(this.getCommonCollection)
+        .doc(this.getSuperEmailDocument)
+        .update(obj)
+        .then(result => {
+          this.$commonFunction.alertSuccess();
         });
     },
-    onSave() {}
+    onSaveEmailUpload() {
+      let obj = this.$commonFunction.getSystemField(false);
+      obj.email = this.commonEmailUpload.email;
+
+      this.$db
+        .collection(this.getCommonCollection)
+        .doc(this.getEmailUploadDocument)
+        .update(obj)
+        .then(result => {
+          this.$commonFunction.alertSuccess();
+        });
+    }
   },
   async created() {
     this.$store.commit(
@@ -184,13 +233,15 @@ export default {
       this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
     );
     this.loadSuperEmail();
+    this.loadEmailUpload();
     this.loadRegion();
   },
   computed: {
     ...mapGetters([
       "getCommonCollection",
       "getRegionCollection",
-      "getSuperEmailDocument"
+      "getSuperEmailDocument",
+      "getEmailUploadDocument"
     ])
   }
 };

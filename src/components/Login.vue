@@ -12,6 +12,8 @@
 
 <script>
 import firebase from "firebase";
+import { mapGetters } from "vuex";
+
 export default {
   name: "Login",
   data() {
@@ -22,7 +24,7 @@ export default {
   methods: {
     loginWithGoogle() {
       var provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/drive');
+      provider.addScope("https://www.googleapis.com/auth/drive");
       provider.setCustomParameters({
         login_hint: "user@one-line.com",
         hd: "one-line.com"
@@ -34,11 +36,40 @@ export default {
         .then(result => {
           // This gives you a Google Access Token. You can use it to access the Google API.
           var token = result.credential.accessToken;
-          localStorage.setItem("user_token", token);
-          // The signed-in user info.
+          sessionStorage.setItem("user_token", token);
           var user = result.user;
-          if (user) this.$router.replace("home");
-          // ...
+
+          var ref = this.$db.collection(this.getUserInfoCollection);
+          ref
+            .where("email", "==", user.email)
+            .get()
+            .then(snapshot => {
+              if (snapshot.docs.length > 0) {
+                ref
+                  .doc(snapshot.docs[0].id)
+                  .update({
+                    access_token: token
+                  })
+                  .then(result => {
+                    this.$router.replace("home");
+                  })
+                  .catch(error => {
+                    this.$commonFunction.alertError(error);
+                  });
+              } else {
+                ref
+                  .add({
+                    access_token: token,
+                    email: user.email
+                  })
+                  .then(result => {
+                    this.$router.replace("home");
+                  })
+                  .catch(error => {
+                    this.$commonFunction.alertError(error);
+                  });
+              }
+            });
         })
         .catch(function(error) {
           // Handle Errors here.
@@ -53,7 +84,6 @@ export default {
         });
     }
   },
-
   created() {
     if (firebase.auth().currentUser)
       this.msg =
@@ -62,6 +92,9 @@ export default {
         " (" +
         firebase.auth().currentUser.email +
         ")";
+  },
+  computed: {
+    ...mapGetters(["getUserInfoCollection"])
   }
 };
 </script>
@@ -73,7 +106,7 @@ export default {
   left: 50%;
   top: 45%;
   transform: translate(-50%, -50%);
-} 
+}
 
 /* Google Button CSS */
 .social-btn-google {

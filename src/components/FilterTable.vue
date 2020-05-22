@@ -5,7 +5,7 @@
         <i class="toggle-class fas fa-thumbs-up"></i>
       </button>
     </el-row>
-    <div id="filter-toolbar">
+    <div id="filter-toolbar" style="display: none;">
       <el-row
         size="small"
         v-for="(andLine, addIndex) in andLines"
@@ -25,7 +25,7 @@
             :value="field.prop"
           />
         </el-select>
-        <el-select size="small" v-model="andLines[addIndex].oper" placeholder="-- Oper --">
+        <el-select size="small" @change="operatorOnChange" v-model="andLines[addIndex].oper" placeholder="-- Oper --">
           <el-option
             v-for="(oper, operIndex) in operators"
             :key="operIndex"
@@ -70,7 +70,7 @@
         </div>-->
       </el-row>
       <el-row class="row-padding">
-        <el-button @click="runFilter">Run</el-button>
+        <el-button @click="runFilter" :disabled="isDisabledRunFilter">Run</el-button>
       </el-row>
     </div>
   </div>
@@ -83,6 +83,7 @@ export default {
   name: "FilterTable",
   data() {
     return {
+      isDisabledRunFilter: true,
       andLines: [],
       andBlockRemoval: true,
       operType: "",
@@ -90,17 +91,17 @@ export default {
       operators: [],
       operatorMasterData: [
         { type: "==", label: "is", applyTo: ["string", "boolean"] },
-        { type: ">", label: "greater than", applyTo: ["string"] },
-        { type: "<", label: "less than", applyTo: ["string"] },
+        { type: ">", label: "greater than", applyTo: [] },
+        { type: "<", label: "less than", applyTo: [] },
         {
           type: ">=",
           label: "greater than or is",
-          applyTo: ["string"]
+          applyTo: []
         },
         {
           type: "<=",
           label: "less than or is",
-          applyTo: ["string"]
+          applyTo: []
         },
         { type: "in", label: "is one of", applyTo: ["string"] }
       ]
@@ -131,6 +132,7 @@ export default {
       if (!this.andBlockRemoval) {
         this.andLines.splice(lineId, 1);
       } else {
+        if(!this.isDisabledRunFilter) this.isDisabledRunFilter = true;
         this.andLines = [];
         this.addAndLine();
       }
@@ -168,6 +170,9 @@ export default {
           .filter(x => x.applyTo.indexOf(this.operType) !== -1)
           .map(x => x);
       }
+    },
+    operatorOnChange() {
+      if(this.isDisabledRunFilter) this.isDisabledRunFilter = false;
     }
   },
   mounted() {
