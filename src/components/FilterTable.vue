@@ -14,7 +14,7 @@
       >
         <el-select
           size="small"
-          @change="filerOperWithField"
+          @change="filerOperWithField(andLines[addIndex], andLines[addIndex].field)"
           v-model="andLines[addIndex].field"
           placeholder="-- Choose field --"
         >
@@ -33,10 +33,10 @@
             :value="oper.type"
           />
         </el-select>
-        <el-input size="small" v-if="operType === 'string'" v-model="andLines[addIndex].value" />
+        <el-input size="small" v-if="andLines[addIndex].type === 'string'" v-model="andLines[addIndex].value" />
         <el-select
           size="small"
-          v-if="operType === 'boolean'"
+          v-if="andLines[addIndex].type === 'boolean'"
           v-model="andLines[addIndex].value"
           placeholder="-- Value --"
         >
@@ -86,7 +86,6 @@ export default {
       isDisabledRunFilter: true,
       andLines: [],
       andBlockRemoval: true,
-      operType: "",
       fieldsQuery: [],
       operators: [],
       operatorMasterData: [
@@ -118,7 +117,8 @@ export default {
         field: "",
         oper: "",
         value: "",
-        orLines: []
+        orLines: [],
+        type: ''
       });
     },
     addOrLine(addLineIndex) {
@@ -161,13 +161,13 @@ export default {
           .querySelector(".toggle-class")
           .classList.toggle("fa-thumbs-down");
     },
-    filerOperWithField(val) {
+    filerOperWithField(andLine, val) {
       let findType = this.fieldsQuery.filter(x => x.prop === val);
 
       if (findType && findType.length === 1) {
-        this.operType = findType[0].type;
+        andLine.type = findType[0].type;
         this.operators = this.operatorMasterData
-          .filter(x => x.applyTo.indexOf(this.operType) !== -1)
+          .filter(x => x.applyTo.indexOf(findType[0].type) !== -1)
           .map(x => x);
       }
     },
