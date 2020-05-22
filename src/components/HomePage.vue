@@ -23,7 +23,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .hello {
+  font-size: 30px;
+  font-weight: 600;
+  padding: 40px;
+  color: #bd0f72;
+  text-align: center;
   background: #fff;
-  padding: 20px 0;
 }
 </style>

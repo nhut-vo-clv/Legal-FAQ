@@ -2,7 +2,7 @@
   <div>
     <el-row class="row-padding">
       <button type="button" @click="toggleFilterToolbar">
-        <i class="toggle-class fas fa-thumbs-up"></i>
+        <i class="toggle-class fas fa-search"></i>
       </button>
     </el-row>
     <div id="filter-toolbar" style="display: none;">
@@ -152,14 +152,14 @@ export default {
       }
 
       let classArr = this.$el.querySelector(".toggle-class").classList;
-      if (classArr.contains("fa-thumbs-down"))
+      if (classArr.contains("fa-times"))
         this.$el
           .querySelector(".toggle-class")
-          .classList.toggle("fa-thumbs-up");
+          .classList.toggle("fa-search");
       else
         this.$el
           .querySelector(".toggle-class")
-          .classList.toggle("fa-thumbs-down");
+          .classList.toggle("fa-times");
     },
     filerOperWithField(andLine, val) {
       let findType = this.fieldsQuery.filter(x => x.prop === val);

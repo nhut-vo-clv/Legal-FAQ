@@ -13,9 +13,9 @@
           <li>
             <router-link to="/setting">Setting</router-link>
           </li>
-          <li>
+          <!-- <li>
             <router-link to="/drive-picker">Drive Picker</router-link>
-          </li>
+          </li> -->
         </ul>
         <ul class="list-unstyled CTAs">
           <li>

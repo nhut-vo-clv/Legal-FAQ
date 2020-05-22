@@ -9,16 +9,15 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <h3>Region</h3>
+            <div class="header-title center-item">Edit Region</div>
             <el-form ref="form" :model="form" label-width="120px">
               <el-form-item label="Name">
                 <el-input v-model="form.name" size="small"></el-input>
               </el-form-item>
-
-              <el-form-item>
-                <el-button type="primary" @click="onSubmit">Save</el-button>
-              </el-form-item>
             </el-form>
+            <div class="center-item">
+              <el-button type="primary" @click="onSubmit" size="small">Save</el-button>
+            </div>
           </el-col>
         </el-row>
       </el-main>
@@ -93,5 +92,15 @@ export default {
 <style scoped>
 .body-wrap {
   background: #fff;
+}
+
+.center-item {
+  text-align: center;
+}
+
+.header-title {
+  color: #bd0f72;
+  font-size: 30px;
+  font-weight: 600;
 }
 </style>

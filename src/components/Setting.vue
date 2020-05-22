@@ -9,21 +9,23 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <h3>Setting</h3>
-            <el-form ref="form" :model="commonSuperEmail" label-width="120px" size="small">
+            <div class="header-title center-item">Setting</div>
+            <el-form ref="form" :model="commonSuperEmail" label-width="150px" size="small">
               <el-form-item label="Super Email">
                 <el-input v-model="commonSuperEmail.email"></el-input>
               </el-form-item>
-
-              <el-button type="primary" @click="onSaveSuperEmail">Save</el-button>
+              <div class="center-item">
+                <el-button type="primary" @click="onSaveSuperEmail">Save</el-button>
+              </div>
             </el-form>
-            <el-form ref="form" :model="commonEmailUpload" label-width="120px" size="small">
+            <hr/>
+            <!-- <el-form ref="form" :model="commonEmailUpload" label-width="150px" size="small">
               <el-form-item label="Owner email upload">
                 <el-input v-model="commonEmailUpload.email"></el-input>
               </el-form-item>
 
               <el-button type="primary" @click="onSaveEmailUpload">Save</el-button>
-            </el-form>
+            </el-form> -->
           </el-col>
         </el-row>
         <el-row>
@@ -33,8 +35,9 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <h3>Region</h3>
-            <FilterTable v-on:filterQuery="loadRegion" />
+            <div class="header-title center-item">Regions</div>
+            <div class="center-item"><FilterTable v-on:filterQuery="loadRegion" /></div>
+            
           </el-col>
           <el-table :data="regionData" stripe style="width: 100%">
             <el-table-column
@@ -252,4 +255,16 @@ export default {
 .body-wrap {
   background: #fff;
 }
+
+.center-item {
+  text-align: center;
+}
+
+.header-title {
+  color: #bd0f72;
+  font-size: 30px;
+  font-weight: 600;
+  padding-bottom: 10px;
+}
+
 </style>
