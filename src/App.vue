@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <Header v-if="this.$router.currentRoute.name !== 'Login'" />
-    <router-view />
+    <Header class="fixed-header" v-if="this.$router.currentRoute.name !== 'Login'" />
+    <router-view class="page-content"/>
   </div>
 </template>
 
@@ -27,6 +27,17 @@ export default {
 
 body {
   background: #eee;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  z-index: 99;
+}
+
+.page-content {
+  margin-top: 50px;
 }
 
 /* .el-button--primary {
