@@ -6,18 +6,19 @@
 
 <script>
 import firebase from "firebase";
+import { mapGetters } from "vuex";
+
 export default {
   name: "DrivePicker",
   data() {
     return {
       pickerApiLoaded: false,
       developerKey: this.$store.state.apiKey,
-      userToken: localStorage.getItem("user_token")
+      userToken: ""
     };
   },
   methods: {
     onApiLoad() {
-      console.log('ABC: ' + this.userToken);
       gapi.load("picker", this.onPickerApiLoad);
     },
     onPickerApiLoad() {
@@ -45,10 +46,35 @@ export default {
     }
   },
   mounted() {
-    let gDrive = document.createElement("script");
-    gDrive.setAttribute("type", "text/javascript");
-    gDrive.setAttribute("src", "https://apis.google.com/js/api.js");
-    document.head.appendChild(gDrive);
+    /**
+     Load user access token (S)
+    **/
+    this.$db
+      .collection(this.getUserInfoCollection)
+      .where("email", "==", firebase.auth().currentUser.email)
+      .get()
+      .then(snapshot => {
+        if (snapshot.docs.length > 0) {
+          this.userToken = snapshot.docs[0].data().access_token;
+        }
+      });
+    /**
+     Load user access token (E)
+    **/
+
+    /**
+     Load Google Api Lib (S)
+    **/
+    let gAPI = document.createElement("script");
+    gAPI.setAttribute("type", "text/javascript");
+    gAPI.setAttribute("src", "https://apis.google.com/js/api.js");
+    document.head.appendChild(gAPI);
+    /**
+     Load Google Api Lib (E)
+    **/
+  },
+  computed: {
+    ...mapGetters(["getUserInfoCollection"])
   }
 };
 </script>

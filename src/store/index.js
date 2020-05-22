@@ -9,10 +9,13 @@ export const store = new Vuex.Store({
     projectNumber: '674624631228', // Replace with your own project number from console.developers.google.com. See "Project number" under "IAM & Admin" > "Settings"
     collections: {
       common: 'common',
-      region: 'region'
+      region: 'region',
+      logs: 'logs',
+      userInfo: 'user_info'
     },
     documents: {
-      superEmail: 'super_email'
+      superEmail: 'super_email',
+      emailUpload: 'email_upload'
     },
     fieldsQuery: [],
     filterQuery: ''
@@ -32,8 +35,23 @@ export const store = new Vuex.Store({
     getRegionCollection: state => {
       return state.collections.region;
     },
+    getLogsCollection: state => {
+      return state.collections.logs;
+    },
+    getUserInfoCollection: state => {
+      return state.collections.userInfo;
+    },
     getSuperEmailDocument: state => {
       return state.documents.superEmail;
+    },
+    getEmailUploadDocument: state => {
+      return state.documents.emailUpload;
+    },
+    getSaveSuccessfullyMessage: () => {
+      return 'Saved successfully';
+    },
+    getSavedErrorMessage: () => {
+      return 'Fail to save';
     }
   }
 });
