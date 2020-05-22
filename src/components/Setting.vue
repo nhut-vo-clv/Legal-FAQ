@@ -203,7 +203,7 @@ export default {
       }
     },
     onSaveSuperEmail() {
-      let obj = this.$commonFunction.getSystemField(true);
+      let obj = this.$commonFunction.getSystemField(false);
       obj.email = this.commonSuperEmail.email;
 
       this.$db

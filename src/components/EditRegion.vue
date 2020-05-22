@@ -62,10 +62,13 @@ export default {
     },
     onSubmit() {
       try {
+        let objSystemField = this.$commonFunction.getSystemField(true);
+        let obj = Object.assign({}, objSystemField, this.form);
+
         this.$db
           .collection(this.getRegionCollection)
           .doc(this.paramDocId)
-          .update(this.form)
+          .update(obj)
           .then(result => {
             this.$commonFunction.alertSuccess();
           })
