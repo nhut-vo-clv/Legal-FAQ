@@ -3,5 +3,5 @@ $--color-primary: #bd0f72;
  
 /* change icon font path variable, required */
 $--font-path: '~element-ui/lib/theme-chalk/fonts';
- 
+@import '~element-ui/lib/theme-chalk/display';
 @import "~element-ui/packages/theme-chalk/src/index";
