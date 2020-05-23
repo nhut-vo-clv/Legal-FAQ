@@ -2,20 +2,15 @@
   <div class="body-wrap">
     <el-container>
       <el-main>
-        <el-col
-          :xl="{span: 16, offset: 4}"
-          :lg="{span: 16, offset: 4}"
-          :md="{span: 16, offset: 4}"
-          :sm="{span: 16, offset: 4}"
-        >
+        <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <div class="box-header-actions">
             <div class="box-title">
-              <p>INQUIRY</p>
+              <div>INQUIRY</div>
             </div>
             <div class="box-buttons">
               <el-button size="small" type="primary" @click="onSubmit">CREATE</el-button>
-              <el-button size="small" type="info" >EXCALIBUR</el-button>
-              <el-button size="small">DMMQUYEN</el-button>
+              <el-button size="small" type="info">EXCALIBUR</el-button>
+              <el-button size="small">DMM QUYEN</el-button>
               <el-button size="small" type="danger">CANCEL</el-button>
             </div>
           </div>
@@ -79,11 +74,10 @@
         </el-col>
 
         <el-col>
-          <el-table
-            style="width: 100%"
-            :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-          >
-            <el-table-column type="expand" class="kuteo">
+          <hr />
+          <p>{{screenWidth}}</p>
+          <el-table :data="tableData">
+            <el-table-column type="expand">
               <template slot-scope="props">
                 <p>State: {{ props.row.state }}</p>
                 <p>City: {{ props.row.city }}</p>
@@ -91,21 +85,12 @@
                 <p>Zip: {{ props.row.zip }}</p>
               </template>
             </el-table-column>
-            <el-table-column label="Date" prop="date"></el-table-column>
-            <el-table-column label="Name" prop="name"></el-table-column>
-            <el-table-column align="right">
-              <template slot="header" slot-scope="scope">
-                <el-input v-model="search" size="mini" placeholder="Type to search" />
-              </template>
-              <template slot-scope="scope">
-                <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="handleDelete(scope.$index, scope.row)"
-                >Delete</el-button>
-              </template>
-            </el-table-column>
+            <!-- <el-table-column label="Date" width="150px" prop="date" class-name="hidden-md-and-down"></el-table-column> -->
+            <el-table-column label="Date" width="150px" prop="date" v-if="isLarge"></el-table-column>
+            <el-table-column prop="zip" width="100px" label="Zip"></el-table-column>
+            <el-table-column prop="address" width="auto" label="Address" v-if="isLarge"></el-table-column>
+            <el-table-column prop="city" width="auto" label="City" v-if="isLarge"></el-table-column>
+            <el-table-column label="Name" width="auto" prop="name"></el-table-column>
           </el-table>
         </el-col>
       </el-main>
@@ -120,6 +105,7 @@ export default {
   data() {
     return {
       msg: "Wellcome to home page",
+      screenWidth: 0,
       form: {
         name: "",
         region: "",
@@ -131,6 +117,7 @@ export default {
         desc: ""
       },
       search: "",
+      isLarge: false,
       tableData: [
         {
           date: "2016-05-03",
@@ -192,6 +179,13 @@ export default {
     };
   },
 
+  computed: {},
+
+  mounted() {
+    //screen.addEventListener("resize", () => (this.screenWidth = screen.width));
+    this.widthCalculating();
+  },
+
   methods: {
     onSubmit() {
       alert("submit!");
@@ -206,10 +200,23 @@ export default {
     },
     handleDelete(index, row) {
       console.log(index, row);
+    },
+
+    widthCalculating() {
+      this.screenWidth =
+        "resolution: " + screen.width + " - innerWidth: " + window.innerWidth;
+      if (window.innerWidth > 1000) this.isLarge = true;
+      else this.isLarge = false;
     }
   },
 
-  created() {}
+  created() {
+    window.addEventListener("resize", this.widthCalculating);
+  },
+
+  destroyed() {
+    window.removeEventListener("resize", this.widthCalculating);
+  }
 };
 </script>
 
@@ -245,10 +252,11 @@ export default {
 }
 
 .box-title {
-  color: #bd0f72;
-  font-size: 25px;
   transform: translateY(50%);
   padding-right: 20px;
+  font-size: 18px;
+  color: #bd0f72;
+  font-weight: bold;
 }
 
 .box-details {

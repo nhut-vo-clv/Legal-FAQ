@@ -10,7 +10,7 @@ export default {
   name: "HomePage",
   data() {
     return {
-      msg: "Welcome to home page"
+      msg: "WELCOME TO HOME PAGE"
     };
   },
 

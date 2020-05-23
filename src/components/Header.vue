@@ -5,22 +5,22 @@
       <nav id="sidebar">
         <ul class="list-unstyled components">
           <li>
-            <router-link to="/home">Home</router-link>
+            <router-link to="/home">HOME</router-link>
           </li>
           <li>
-            <router-link to="/inquiry">Create Request</router-link>
+            <router-link to="/inquiry">CREATE REQUEST</router-link>
           </li>
           <li>
-            <router-link to="/setting">Setting</router-link>
+            <router-link to="/setting">SETTING</router-link>
           </li>
           <!-- <li>
             <router-link to="/drive-picker">Drive Picker</router-link>
-          </li> -->
+          </li>-->
         </ul>
         <ul class="list-unstyled CTAs">
           <li>
             <!-- <el-button type="primary">Logout</el-button> -->
-            <a href="#" @click="signout" class="download">Logout</a>
+            <a href="#" @click="signout" class="download">SIGN OUT</a>
           </li>
         </ul>
       </nav>
@@ -202,6 +202,7 @@ a:focus {
 
 .nav-c-3 {
   display: flex;
+  line-height: 26px;
 }
 
 .nav-c-3 > button {
@@ -217,8 +218,7 @@ a:focus {
 }
 
 .nav-c-3 > span {
-  border: none;
-  vertical-align: middle;
+  text-transform: uppercase;
 }
 
 .line {
@@ -347,6 +347,8 @@ ul.CTAs a {
 a.download {
   background: #eee;
   color: #2c3e50;
+  padding: 6px !important;
+  border-radius: 3px;
 }
 
 a.article,
