@@ -143,35 +143,11 @@ export default {
     };
   },
   methods: {
-    loadSuperEmail() {
-      this.$db
-        .collection(this.getCommonCollection)
-        .doc(this.getSuperEmailDocument)
-        .get()
-        .then(snapshot => {
-          if (snapshot.exists) {
-            let data = snapshot.data();
-            this.commonSuperEmail.email = data.email;
-          } else {
-            // snapshot.data() will be undefined in this case
-            console.log("No such document!");
-          }
-        });
+    async loadSuperEmail() {
+      this.commonSuperEmail = await this.$commonFunction.getRecord(this.getCommonCollection, this.getSuperEmailDocument);
     },
-    loadEmailUpload() {
-      this.$db
-        .collection(this.getCommonCollection)
-        .doc(this.getEmailUploadDocument)
-        .get()
-        .then(snapshot => {
-          if (snapshot.exists) {
-            let data = snapshot.data();
-            this.commonEmailUpload.email = data.email;
-          } else {
-            // snapshot.data() will be undefined in this case
-            console.log("No such document!");
-          }
-        });
+    async loadEmailUpload() {
+      this.commonEmailUpload = await this.$commonFunction.getRecord(this.getCommonCollection, this.getEmailUploadDocument);
     },
     async loadRegion(arrQuery) {
       this.fullscreenLoading = true;
@@ -230,7 +206,7 @@ export default {
         });
     }
   },
-  async created() {
+  created() {
     this.$store.commit(
       "SET_FIELDS_QUERY",
       this.columns.filter(x => x.activeFilterQuery === true).map(x => x)

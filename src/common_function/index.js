@@ -3,25 +3,65 @@ import { store } from './../store';
 import firebase from "firebase";
 
 export const commonFunction = {
-    getSystemField(isIncludeCreateField){
+    getList() {
+
+    },
+    getRecord(collectionName, docId) {
+        return new Promise((resolve, reject) => {
+            firebase.firestore()
+                .collection(collectionName)
+                .doc(docId)
+                .get()
+                .then(snapshot => {
+                    if (snapshot.exists) {
+                        resolve(snapshot.data());
+                    } else {
+                        reject("No such document!");
+                    }
+                });
+        });
+    },
+    insertRecord() { },
+    updateRecord(collectionName, docId, formData) {
+        try {
+            let obj = Object.assign({}, this.getSystemField(false), formData);
+            return new Promise((resolve, reject) => {
+                firebase.firestore()
+                    .collection(collectionName)
+                    .doc(docId)
+                    .update(obj)
+                    .then(() => {
+                        this.alertSuccess();
+                        resolve(true);
+                    }).catch(error => {
+                        this.alertError(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
+    },
+    deleteRecord() { },
+    getSystemField(isIncludeCreateField) {
         var d = new Date();
         var utc = d.getTime() + d.getTimezoneOffset() * 60000;
         var nd = new Date(utc + 3600000 * "+8");
 
-        if(isIncludeCreateField){
+        if (isIncludeCreateField) {
             return {
                 created: nd,
                 created_by: this.getUserEmailLogin(),
                 updated: nd,
                 updated_by: this.getUserEmailLogin()
             };
-        }else{
+        } else {
             return {
                 updated: nd,
                 updated_by: this.getUserEmailLogin()
             };
         }
-        
+
     },
     getUserEmailLogin() {
         return firebase.auth().currentUser.email;
@@ -50,6 +90,13 @@ export const commonFunction = {
             type: 'success'
         });
     },
+    alertWarning(message) {
+        ElementUI.Message({
+            showClose: true,
+            message: message,
+            type: 'warning'
+        });
+    },
     alertError(error) {
         var userEmail = firebase.auth().currentUser.email;
         firebase.firestore()
@@ -68,5 +115,9 @@ export const commonFunction = {
                     type: 'error'
                 });
             });
+    },
+    validateEmail(email) {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
     }
 }
