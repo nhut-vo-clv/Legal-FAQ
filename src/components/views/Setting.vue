@@ -86,8 +86,8 @@
 
 <script>
 import { mapGetters } from "vuex";
-import FilterTable from "./FilterTable";
-import Editor from "./Editor";
+import FilterTable from "../elements/FilterTable";
+import Editor from "../elements/Editor";
 
 export default {
   name: "Setting",

@@ -2,12 +2,12 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import firebase from 'firebase'
 
-import HomePage from '@/components/HomePage'
-import Inquiry from '@/components/Inquiry'
-import Login from '@/components/Login'
-import DrivePicker from '@/components/DrivePicker'
-import Setting from '@/components/Setting'
-import EditRegion from '@/components/EditRegion'
+import HomePage from '@/components/views/HomePage'
+import Inquiry from '@/components/views/Inquiry'
+import Login from '@/components/views/Login'
+import DrivePicker from '@/components/elements/DrivePicker'
+import Setting from '@/components/views/Setting'
+import EditRegion from '@/components/views/EditRegion'
 
 Vue.use(Router);
 

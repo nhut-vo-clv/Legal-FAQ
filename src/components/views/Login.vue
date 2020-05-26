@@ -1,6 +1,6 @@
 <template>
   <div class="login-body">
-    <img src="../assets/oneline-home-logo.png" alt="Oneline Directory" />
+    <img src="../../assets/oneline-home-logo.png" alt="Oneline Directory" />
 
     <button class="social-btn-google fxac" type="button" @click="loginWithGoogle()">
       <i class="udi udi-google-plus social-icon"></i>
@@ -124,7 +124,7 @@ export default {
 }
 
 .social-btn-google .udi-google-plus {
-  background: url(../assets/google-logo.svg) no-repeat 50%;
+  background: url(../../assets/google-logo.svg) no-repeat 50%;
   background-size: 24px;
   border: none !important;
   display: inline-block;

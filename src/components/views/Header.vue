@@ -30,7 +30,7 @@
         <nav class="navbar navbar-expand-lg nav-c-1">
           <div class="container-fluid">
             <div class="nav-c-2">
-              <img src="../assets/logo.png" alt="Oneline Directory" class="app-logo" />
+              <img src="../../assets/logo.png" alt="Oneline Directory" class="app-logo" />
             </div>
 
             <div class="nav-c-3">
