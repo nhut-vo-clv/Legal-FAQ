@@ -93,15 +93,22 @@
             <el-table-column label="Name" width="auto" prop="name"></el-table-column>
           </el-table>
         </el-col>
+        <el-col>
+          <tiptap></tiptap>
+        </el-col>
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script>
+import tiptap from "../elements/Editor";
 import firebase from "firebase";
 export default {
   name: "Inquiry",
+  components: {
+    tiptap
+  },
   data() {
     return {
       msg: "Wellcome to home page",

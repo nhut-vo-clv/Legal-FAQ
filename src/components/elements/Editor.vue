@@ -1,18 +1,30 @@
 <template>
-  <div>
+  <div class="editor">
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
       <div class="menubar">
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.bold() }"
           @click="commands.bold"
-        ></button>
+        >
+          <i class="fas fa-bold"></i>
+        </button>
 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.italic() }"
           @click="commands.italic"
-        ></button>
+        >
+          <i class="fas fa-italic"></i>
+        </button>
+
+        <button
+          class="menubar__button"
+          :class="{ 'is-active': isActive.strike() }"
+          @click="commands.strike"
+        >
+          <i class="fas fa-strikethrough"></i>
+        </button>
 
         <button
           class="menubar__button"
@@ -26,14 +38,26 @@
           class="menubar__button"
           :class="{ 'is-active': isActive.code() }"
           @click="commands.code"
-        ></button>
+        >
+          <i class="fas fa-code"></i>
+        </button>
+
+        <button
+          class="menubar__button"
+          :class="{ 'is-active': isActive.paragraph() }"
+          @click="commands.paragraph"
+        >
+          <i class="fas fa-paragraph"></i>
+        </button>
 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.heading({ level: 1 }) }"
           @click="commands.heading({ level: 1 })"
-        >H1</button>
-
+        >
+          <i class="fas fa-heading"></i>
+        </button>
+        <!-- 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.heading({ level: 2 }) }"
@@ -50,27 +74,45 @@
           class="menubar__button"
           :class="{ 'is-active': isActive.bullet_list() }"
           @click="commands.bullet_list"
-        ></button>
+        >
+          <icon name="ul" />
+        </button>
 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.ordered_list() }"
           @click="commands.ordered_list"
-        ></button>
+        >
+          <icon name="ol" />
+        </button>
 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.blockquote() }"
           @click="commands.blockquote"
-        ></button>
+        >
+          <icon name="quote" />
+        </button>
 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.code_block() }"
           @click="commands.code_block"
-        ></button>
+        >
+          <icon name="code" />
+        </button>
 
-        <button class="menubar__button" @click="commands.horizontal_rule"></button>
+        <button class="menubar__button" @click="commands.horizontal_rule">
+          <icon name="hr" />
+        </button>-->
+
+        <button class="menubar__button" @click="commands.undo">
+          <i class="fas fa-undo"></i>
+        </button>
+
+        <button class="menubar__button" @click="commands.redo">
+          <i class="fas fa-redo"></i>
+        </button>
       </div>
     </editor-menu-bar>
 
@@ -99,9 +141,7 @@ import {
   Underline,
   History
 } from "tiptap-extensions";
-
 export default {
-  name: "Editor",
   components: {
     EditorContent,
     EditorMenuBar
@@ -129,25 +169,62 @@ export default {
           new History()
         ],
         content: `
-          <h1>Yay Headlines!</h1>
-          <p>All these <strong>cool tags</strong> are working now.</p>
-        `,
+          <h2>
+            Hi there,
+          </h2>
+          <p>
+            this is a very <em>basic</em> example of tiptap.
+          </p>
+          <pre><code>body { display: none; }</code></pre>
+          <ul>
+            <li>
+              A regular list
+            </li>
+            <li>
+              With regular items
+            </li>
+          </ul>
+          <blockquote>
+            It's amazing 👏
+            <br />
+            – mom
+          </blockquote>
+        `
       })
     };
   },
-  methods: {
-    beforeDestroy() {
-      this.editor.destroy();
-    }
-  },
-  created() {
-    console.log(this.editor.getHTML());
-    this.$store.commit(
-      "SET_FIELDS_QUERY",
-      this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
-    );
-    this.loadSetupEmail();
-    this.loadRegion();
+  beforeDestroy() {
+    this.editor.destroy();
   }
 };
 </script>
+
+<style scoped>
+.menubar {
+  background-color: #eee;
+  line-height: 0px;
+}
+
+.menubar__button {
+  /* font-weight: 300; */
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  background: transparent;
+  border: 0;
+  color: #503a3a;
+  padding: 0.2rem 0.5rem;
+  margin-right: 0.2rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 21px;
+}
+
+.menubar__button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.editor__content {
+  border: solid #eee 1px;
+}
+</style>
