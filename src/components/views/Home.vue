@@ -1,17 +1,23 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <!-- <h1>{{ msg }}</h1> -->
+    <tiptap></tiptap>
   </div>
 </template>
 
 <script>
 import firebase from "firebase";
+import tiptap from "../elements/tiptap";
+
 export default {
-  name: "HomePage",
+  name: "Home",
   data() {
     return {
       msg: "WELCOME TO HOME PAGE"
     };
+  },
+  components: {
+    tiptap
   },
 
   methods: {},

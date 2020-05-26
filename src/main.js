@@ -26,9 +26,13 @@ Vue.prototype.$db = firebase.firestore();
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+import svgSpriteLoader from './components/elements/tiptap/helpers/svg-sprite-loader'
+const __svg__ = { path: './assets/tiptap/images/icons/*.svg', filename: 'assets/tiptap/images/sprite.svg' }
+svgSpriteLoader(__svg__.filename)
+
 import App from './App'
 import { store } from './store';
-import { commonFunction } from './common_function'
+import { commonFunction } from './common-function'
 
 Vue.use(ElementUI, { locale })
 Vue.config.productionTip = false

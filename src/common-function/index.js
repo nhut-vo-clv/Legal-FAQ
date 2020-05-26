@@ -1,5 +1,5 @@
 import ElementUI from 'element-ui';
-import { store } from './../store';
+import { store } from '../store';
 import firebase from "firebase";
 
 export const commonFunction = {

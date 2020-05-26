@@ -33,7 +33,6 @@
                 :label="rules.homepage_content[0].fieldLabel"
                 :prop="rules.homepage_content[0].prop"
               >
-                <editor></editor>
               </el-form-item>
               <div class="center-item">
                 <el-button type="primary" @click="onSave('formSetting')">Save</el-button>
@@ -87,13 +86,12 @@
 <script>
 import { mapGetters } from "vuex";
 import FilterTable from "../elements/FilterTable";
-import Editor from "../elements/Editor";
+// import Editor from "../elements/Editor";
 
 export default {
   name: "Setting",
   components: {
-    FilterTable,
-    Editor
+    FilterTable
   },
   data() {
     let arrProp = {
@@ -222,7 +220,7 @@ export default {
     onSave(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          this.form.homepage_content = Editor.editor.getHTML();
+          //this.form.homepage_content = Editor.editor.getHTML();
           await this.$commonFunction.updateRecord(
             this.getCommonCollection,
             this.getSettingDocument,
@@ -238,7 +236,7 @@ export default {
     }
   },
   created() {
-    console.log(Editor.editor.getHTML());
+    // console.log(Editor.editor.getHTML());
     this.$store.commit(
       "SET_FIELDS_QUERY",
       this.columns.filter(x => x.activeFilterQuery === true).map(x => x)

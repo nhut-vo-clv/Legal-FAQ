@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import firebase from 'firebase'
 
-import HomePage from '@/components/views/HomePage'
+import Home from '@/components/views/Home'
 import Inquiry from '@/components/views/Inquiry'
 import Login from '@/components/views/Login'
 import DrivePicker from '@/components/elements/DrivePicker'
@@ -28,8 +28,8 @@ const router = new Router({
     },
     {
       path: '/home',
-      name: 'HomePage',
-      component: HomePage,
+      name: 'Home',
+      component: Home,
       meta: {
         requiresAuth: true
       }
