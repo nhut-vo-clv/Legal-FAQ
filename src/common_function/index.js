@@ -21,16 +21,39 @@ export const commonFunction = {
                 });
         });
     },
-    insertRecord() { },
+    insertRecord(collectionName, formData) {
+        try {
+            let obj = Object.assign({}, this.getSystemField(true), formData);
+
+            return new Promise((resolve, reject) => {
+                firebase.firestore()
+                    .collection(collectionName)
+                    .add(obj)
+                    .then(async () => {
+                        await this.writeLogSuccessfully(formData);
+                        this.alertSuccess();
+                        resolve(true);
+                    }).catch(error => {
+                        this.alertError(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
+    },
     updateRecord(collectionName, docId, formData) {
         try {
-            let obj = Object.assign({}, this.getSystemField(false), formData);
             return new Promise((resolve, reject) => {
+                formData = this.removeUpdateProp(formData);
+                let obj = Object.assign({}, this.getSystemField(false), formData);
+
                 firebase.firestore()
                     .collection(collectionName)
                     .doc(docId)
                     .update(obj)
-                    .then(() => {
+                    .then(async () => {
+                        await this.writeLogSuccessfully(formData);
                         this.alertSuccess();
                         resolve(true);
                     }).catch(error => {
@@ -43,25 +66,44 @@ export const commonFunction = {
         }
     },
     deleteRecord() { },
+    writeLogSuccessfully(formData) {
+        try {
+            let obj = Object.assign({}, this.getSystemField(true), { data: formData });
+
+            return new Promise((resolve, reject) => {
+                firebase.firestore()
+                    .collection(store.getters.getLogsCollection)
+                    .add(obj)
+                    .then(() => {
+                        resolve(true);
+                    }).catch(error => {
+                        this.alertError(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
+    },
     getSystemField(isIncludeCreateField) {
-        var d = new Date();
-        var utc = d.getTime() + d.getTimezoneOffset() * 60000;
-        var nd = new Date(utc + 3600000 * "+8");
+        let emailUserLogin = this.getUserEmailLogin();
+        let d = new Date();
+        let utc = d.getTime() + d.getTimezoneOffset() * 60000;
+        let nd = new Date(utc + 3600000 * "+8");
 
         if (isIncludeCreateField) {
             return {
                 created: nd,
-                created_by: this.getUserEmailLogin(),
+                created_by: emailUserLogin,
                 updated: nd,
-                updated_by: this.getUserEmailLogin()
+                updated_by: emailUserLogin
             };
         } else {
             return {
                 updated: nd,
-                updated_by: this.getUserEmailLogin()
+                updated_by: emailUserLogin
             };
         }
-
     },
     getUserEmailLogin() {
         return firebase.auth().currentUser.email;
@@ -119,5 +161,42 @@ export const commonFunction = {
     validateEmail(email) {
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
+    },
+    removeUpdateProp(obj) {
+        delete obj.updated;
+        delete obj.updated_by;
+
+        return obj;
+    },
+    getFormPorp(form) {
+        let obj = {};
+
+        for (let i in form) {
+            obj[i] = '';
+        }
+
+        return obj;
+    },
+    getRuleValidation(form) {
+        const objType = {
+            string: {message: ' is mandatory', trigger: 'blur'}
+        };
+        let obj = {};
+
+        for (let i in form) {
+            let arr = [];
+            for(let j in form[i]) {
+                let clonedObjType = JSON.parse(JSON.stringify(objType));
+                let fieldType = form[i][j].type;
+
+                if(form[i][j].required){
+                    clonedObjType[fieldType].message = form[i][j].fieldLabel + clonedObjType[fieldType].message;
+                }
+                arr.push(Object.assign({}, form[i][j], clonedObjType[fieldType]));
+            }
+            obj[i] = arr;
+        }
+
+        return obj;
     }
 }

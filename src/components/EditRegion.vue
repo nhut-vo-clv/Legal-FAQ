@@ -10,14 +10,14 @@
             :sm="{span: 16, offset: 4}"
           >
             <div class="header-title center-item">Edit Region</div>
-            <el-form ref="form" :model="form" label-width="120px">
-              <el-form-item label="Name">
+            <el-form ref="formRegion" :model="form" :rules="rules" label-width="120px">
+              <el-form-item :label="rules.name[0].fieldLabel" :prop="rules.name[0].prop">
                 <el-input v-model="form.name" size="small"></el-input>
               </el-form-item>
               <el-form-item label="Email">
                 <el-tag
                   :key="tag"
-                  v-for="tag in form.email"
+                  v-for="tag in tagEmail"
                   closable
                   :disable-transitions="false"
                   @close="handleClose(tag, 'email')"
@@ -41,7 +41,7 @@
               <el-form-item label="Group Email">
                 <el-tag
                   :key="tag"
-                  v-for="tag in form.group_email"
+                  v-for="tag in tagGroupEmail"
                   closable
                   :disable-transitions="false"
                   @close="handleClose(tag, 'group_email')"
@@ -64,7 +64,7 @@
               </el-form-item>
             </el-form>
             <div class="center-item">
-              <el-button type="primary" @click="onSubmit" size="small">Save</el-button>
+              <el-button type="primary" @click="onSubmit('formRegion')" size="small">Save</el-button>
             </div>
           </el-col>
         </el-row>
@@ -80,41 +80,64 @@ import { mapGetters } from "vuex";
 export default {
   name: "EditRegion",
   data() {
+    let arrProp = {
+      name: [{ required: true, type: "string", fieldLabel: 'Name', prop: 'name' }]
+    };
     return {
-      form: {
-        name: "",
-        email: [],
-        group_email: []
-      },
+      form: this.$commonFunction.getFormPorp(arrProp),
+      rules: this.$commonFunction.getRuleValidation(arrProp),
+      tagEmail: [],
+      tagGroupEmail: [],
       paramDocId: this.$route.params.id,
       fullscreenLoading: false,
       inputEmailVisible: false,
       inputEmailValue: "",
       inputGroupEmailVisible: false,
-      inputGroupEmailValue: ""
+      inputGroupEmailValue: "",
+      isNewRecord: "isNew"
     };
   },
 
   methods: {
     async loadRegionData() {
       this.fullscreenLoading = true;
-      this.form = await this.$commonFunction.getRecord(this.getRegionCollection, this.$route.params.id);
+      this.form = await this.$commonFunction.getRecord(
+        this.getRegionCollection,
+        this.paramDocId
+      );
+      this.tagEmail = this.form.email;
+      this.tagGroupEmail = this.form.group_email;
       this.fullscreenLoading = false;
     },
-    async onSubmit() {
-      this.fullscreenLoading = true;
-      await this.$commonFunction.updateRecord(
-        this.getRegionCollection,
-        this.paramDocId,
-        this.form
-      );
-      this.fullscreenLoading = false;
+    onSubmit(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.fullscreenLoading = true;
+          this.form.email = this.tagEmail;
+          this.form.group_email = this.tagGroupEmail;
+
+          if (this.paramDocId !== this.isNewRecord)
+            await this.$commonFunction.updateRecord(
+              this.getRegionCollection,
+              this.paramDocId,
+              this.form
+            );
+          else
+            await this.$commonFunction.insertRecord(
+              this.getRegionCollection,
+              this.form
+            );
+          this.fullscreenLoading = false;
+        } else {
+          return false;
+        }
+      });
     },
     handleClose(tag, type) {
       if (type === "email") {
-        this.form.email.splice(this.form.email.indexOf(tag), 1);
+        this.tagEmail.splice(this.tagEmail.indexOf(tag), 1);
       } else if (type === "group_email") {
-        this.form.group_email.splice(this.form.group_email.indexOf(tag), 1);
+        this.tagGroupEmail.splice(this.tagGroupEmail.indexOf(tag), 1);
       }
     },
     showInput(type) {
@@ -135,14 +158,15 @@ export default {
 
       if (type === "email") {
         inputValue = this.inputEmailValue;
-        arrData = this.form.email;
+        arrData = this.tagEmail;
       } else if (type === "group_email") {
         inputValue = this.inputGroupEmailValue;
-        arrData = this.form.group_email;
+        arrData = this.tagGroupEmail;
       }
 
       if (inputValue) {
         if (this.$commonFunction.validateEmail(inputValue)) {
+          if (!arrData) arrData = [];
           if (arrData.indexOf(inputValue) != -1) {
             isDuplicate = true;
           } else {
@@ -160,9 +184,9 @@ export default {
         });
       } else {
         if (type === "email") {
-          this.form.email = arrData;
+          this.tagEmail = arrData;
         } else if (type === "group_email") {
-          this.form.group_email = arrData;
+          this.tagGroupEmail = arrData;
         }
       }
 
@@ -176,7 +200,7 @@ export default {
     }
   },
   created() {
-    this.loadRegionData();
+    if (this.paramDocId !== this.isNewRecord) this.loadRegionData();
   },
   computed: {
     ...mapGetters(["getRegionCollection", "getSaveSuccessfullyMessage"])

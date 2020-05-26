@@ -10,22 +10,36 @@
             :sm="{span: 16, offset: 4}"
           >
             <div class="header-title center-item">Setting</div>
-            <el-form ref="form" :model="commonSuperEmail" label-width="150px" size="small">
-              <el-form-item label="Super Email">
-                <el-input v-model="commonSuperEmail.email"></el-input>
+            <el-form
+              ref="formSetting"
+              :model="form"
+              :rules="rules"
+              label-width="150px"
+              size="small"
+            >
+              <el-form-item
+                :label="rules.super_email[0].fieldLabel"
+                :prop="rules.super_email[0].prop"
+              >
+                <el-input v-model="form.super_email"></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="rules.upload_email[0].fieldLabel"
+                :prop="rules.upload_email[0].prop"
+              >
+                <el-input v-model="form.upload_email"></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="rules.homepage_content[0].fieldLabel"
+                :prop="rules.homepage_content[0].prop"
+              >
+                <editor></editor>
               </el-form-item>
               <div class="center-item">
-                <el-button type="primary" @click="onSaveSuperEmail">Save</el-button>
+                <el-button type="primary" @click="onSave('formSetting')">Save</el-button>
               </div>
             </el-form>
-            <hr/>
-            <!-- <el-form ref="form" :model="commonEmailUpload" label-width="150px" size="small">
-              <el-form-item label="Owner email upload">
-                <el-input v-model="commonEmailUpload.email"></el-input>
-              </el-form-item>
-
-              <el-button type="primary" @click="onSaveEmailUpload">Save</el-button>
-            </el-form> -->
+            <hr />
           </el-col>
         </el-row>
         <el-row>
@@ -36,8 +50,10 @@
             :sm="{span: 16, offset: 4}"
           >
             <div class="header-title center-item">Regions</div>
-            <div class="center-item"><FilterTable v-on:filterQuery="loadRegion" /></div>
-            
+            <div class="center-item">
+              <FilterTable v-on:filterQuery="loadRegion" />
+            </div>
+            <el-button type="primary" @click="newRegion">New</el-button>
           </el-col>
           <el-table :data="regionData" stripe style="width: 100%">
             <el-table-column
@@ -71,20 +87,42 @@
 <script>
 import { mapGetters } from "vuex";
 import FilterTable from "./FilterTable";
+import Editor from "./Editor";
 
 export default {
   name: "Setting",
   components: {
-    FilterTable
+    FilterTable,
+    Editor
   },
   data() {
+    let arrProp = {
+      super_email: [
+        {
+          required: false,
+          type: "string",
+          fieldLabel: "Super Email",
+          prop: "super_email"
+        }
+      ],
+      upload_email: [
+        {
+          required: true,
+          type: "string",
+          fieldLabel: "Owner Email Upload",
+          prop: "upload_email"
+        }
+      ],
+      homepage_content: {
+          required: false,
+          type: "string",
+          fieldLabel: "Home Page",
+          prop: "homepage_content"
+        }
+    };
     return {
-      commonSuperEmail: {
-        email: ""
-      },
-      commonEmailUpload: {
-        email: ""
-      },
+      form: this.$commonFunction.getFormPorp(arrProp),
+      rules: this.$commonFunction.getRuleValidation(arrProp),
       columns: [
         {
           prop: "icon",
@@ -143,11 +181,11 @@ export default {
     };
   },
   methods: {
-    async loadSuperEmail() {
-      this.commonSuperEmail = await this.$commonFunction.getRecord(this.getCommonCollection, this.getSuperEmailDocument);
-    },
-    async loadEmailUpload() {
-      this.commonEmailUpload = await this.$commonFunction.getRecord(this.getCommonCollection, this.getEmailUploadDocument);
+    async loadSetupEmail() {
+      this.form = await this.$commonFunction.getRecord(
+        this.getCommonCollection,
+        this.getSettingDocument
+      );
     },
     async loadRegion(arrQuery) {
       this.fullscreenLoading = true;
@@ -181,46 +219,38 @@ export default {
         console.log(error.message);
       }
     },
-    onSaveSuperEmail() {
-      let obj = this.$commonFunction.getSystemField(false);
-      obj.email = this.commonSuperEmail.email;
-
-      this.$db
-        .collection(this.getCommonCollection)
-        .doc(this.getSuperEmailDocument)
-        .update(obj)
-        .then(result => {
-          this.$commonFunction.alertSuccess();
-        });
+    onSave(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          this.form.homepage_content = Editor.editor.getHTML();
+          await this.$commonFunction.updateRecord(
+            this.getCommonCollection,
+            this.getSettingDocument,
+            this.form
+          );
+        } else {
+          return false;
+        }
+      });
     },
-    onSaveEmailUpload() {
-      let obj = this.$commonFunction.getSystemField(false);
-      obj.email = this.commonEmailUpload.email;
-
-      this.$db
-        .collection(this.getCommonCollection)
-        .doc(this.getEmailUploadDocument)
-        .update(obj)
-        .then(result => {
-          this.$commonFunction.alertSuccess();
-        });
+    newRegion() {
+      this.$router.replace("edit-region/isNew");
     }
   },
   created() {
+    console.log(Editor.editor.getHTML());
     this.$store.commit(
       "SET_FIELDS_QUERY",
       this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
     );
-    this.loadSuperEmail();
-    this.loadEmailUpload();
+    this.loadSetupEmail();
     this.loadRegion();
   },
   computed: {
     ...mapGetters([
       "getCommonCollection",
       "getRegionCollection",
-      "getSuperEmailDocument",
-      "getEmailUploadDocument"
+      "getSettingDocument"
     ])
   }
 };
@@ -242,5 +272,4 @@ export default {
   font-weight: 600;
   padding-bottom: 10px;
 }
-
 </style>

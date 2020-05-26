@@ -14,8 +14,7 @@ export const store = new Vuex.Store({
       userInfo: 'user_info'
     },
     documents: {
-      superEmail: 'super_email',
-      emailUpload: 'email_upload'
+      setting: 'setting'
     },
     fieldsQuery: [],
     filterQuery: ''
@@ -41,11 +40,8 @@ export const store = new Vuex.Store({
     getUserInfoCollection: state => {
       return state.collections.userInfo;
     },
-    getSuperEmailDocument: state => {
-      return state.documents.superEmail;
-    },
-    getEmailUploadDocument: state => {
-      return state.documents.emailUpload;
+    getSettingDocument: state => {
+      return state.documents.setting;
     },
     getSaveSuccessfullyMessage: () => {
       return 'Saved successfully';
