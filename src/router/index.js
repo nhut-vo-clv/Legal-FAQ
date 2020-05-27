@@ -8,6 +8,7 @@ import Login from '@/components/views/Login'
 import DrivePicker from '@/components/elements/DrivePicker'
 import Setting from '@/components/views/Setting'
 import EditRegion from '@/components/views/EditRegion'
+import MakeRequest from '@/components/views/MakeRequest'
 
 Vue.use(Router);
 
@@ -62,6 +63,14 @@ const router = new Router({
       path: '/edit-region/:id',
       name: 'EditRegion',
       component: EditRegion,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/make-request',
+      name: 'Make Request',
+      component: MakeRequest,
       meta: {
         requiresAuth: true
       }

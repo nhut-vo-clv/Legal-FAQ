@@ -33,6 +33,7 @@
                 :label="rules.homepage_content[0].fieldLabel"
                 :prop="rules.homepage_content[0].prop"
               >
+                <editor v-on:editorContent="getEditorContent" v-model="form.homepage_content"></editor>
               </el-form-item>
               <div class="center-item">
                 <el-button type="primary" @click="onSave('formSetting')">Save</el-button>
@@ -49,33 +50,47 @@
             :sm="{span: 16, offset: 4}"
           >
             <div class="header-title center-item">Regions</div>
-            <div class="center-item">
-              <FilterTable v-on:filterQuery="loadRegion" />
-            </div>
             <el-button type="primary" @click="newRegion">New</el-button>
           </el-col>
           <el-table :data="regionData" stripe style="width: 100%">
-            <el-table-column
-              v-for="column in columns"
-              :key="column.label"
-              :prop="column.prop"
-              :label="column.label"
-              :min-width="column.minWidth"
-            >
-              <template #default="{row}" v-if="column.formatter">
-                <router-link v-if="column.formatter.classIcon" :to="'edit/' + row.documentId">
-                  <i :class="column.formatter.classIcon"></i>
-                </router-link>
-                <template></template>
-                <router-link
-                  v-if="column.formatter.showReference === true"
-                  :to="'edit-region/' + row.documentId"
-                >{{row[column.prop]}}</router-link>
-                <template
-                  v-if="column.formatter.formatDate === true"
-                >{{$commonFunction.formatDate(row[column.prop])}}</template>
+            <el-table-column label="Name" min-width="150px" prop="name" sortable>
+              <template #default="{row}">
+                <router-link :to="'edit-region/' + row.documentId">{{row['name']}}</router-link>
               </template>
             </el-table-column>
+            <el-table-column label="Active" min-width="150px" prop="active" sortable></el-table-column>
+            <el-table-column
+              label="Created"
+              min-width="150px"
+              prop="created"
+              sortable
+              v-if="isLarge"
+            >
+              <template #default="{row}">{{$commonFunction.formatDate(row["created"])}}</template>
+            </el-table-column>
+            <el-table-column
+              label="Created By"
+              min-width="150px"
+              prop="created_by"
+              sortable
+              v-if="isLarge"
+            ></el-table-column>
+            <el-table-column
+              label="Updated"
+              min-width="150px"
+              prop="updated"
+              sortable
+              v-if="isLarge"
+            >
+              <template #default="{row}">{{$commonFunction.formatDate(row["updated"])}}</template>
+            </el-table-column>
+            <el-table-column
+              label="Updated By"
+              min-width="150px"
+              prop="updated_by"
+              sortable
+              v-if="isLarge"
+            ></el-table-column>
           </el-table>
         </el-row>
       </el-main>
@@ -85,58 +100,48 @@
 
 <script>
 import { mapGetters } from "vuex";
-import FilterTable from "../elements/FilterTable";
-// import Editor from "../elements/Editor";
+import Editor from "../elements/Editor";
+
+let arrProp = {
+  super_email: [
+    {
+      required: false,
+      elmType: "string",
+      fieldLabel: "Super Email",
+      prop: "super_email"
+    }
+  ],
+  upload_email: [
+    {
+      required: true,
+      elmType: "string",
+      fieldLabel: "Owner Email Upload",
+      prop: "upload_email"
+    }
+  ],
+  homepage_content: [
+    {
+      required: false,
+      elmType: "string",
+      fieldLabel: "Home Page",
+      prop: "homepage_content"
+    }
+  ]
+};
 
 export default {
   name: "Setting",
   components: {
-    FilterTable
+    Editor
   },
   data() {
-    let arrProp = {
-      super_email: [
-        {
-          required: false,
-          type: "string",
-          fieldLabel: "Super Email",
-          prop: "super_email"
-        }
-      ],
-      upload_email: [
-        {
-          required: true,
-          type: "string",
-          fieldLabel: "Owner Email Upload",
-          prop: "upload_email"
-        }
-      ],
-      homepage_content: {
-          required: false,
-          type: "string",
-          fieldLabel: "Home Page",
-          prop: "homepage_content"
-        }
-    };
     return {
       form: this.$commonFunction.getFormPorp(arrProp),
       rules: this.$commonFunction.getRuleValidation(arrProp),
       columns: [
         {
-          prop: "icon",
-          label: "",
-          minWidth: "35px",
-          formatter: {
-            classIcon: "el-icon-info"
-          }
-        },
-        {
           prop: "name",
           label: "Name",
-          minWidth: "180px",
-          formatter: {
-            showReference: true
-          },
           activeFilterQuery: true,
           type: "string"
         },
@@ -145,41 +150,55 @@ export default {
           label: "Active",
           minWidth: "180px",
           activeFilterQuery: true,
-          type: "boolean"
+          type: "boolean",
+          formatter: {
+            isLarge: true
+          }
         },
         {
           prop: "created",
           label: "Created",
           minWidth: "180px",
           formatter: {
-            formatDate: true
+            formatDate: true,
+            isLarge: false
           }
         },
         {
           prop: "created_by",
           label: "Created By",
-          minWidth: "180px"
+          minWidth: "180px",
+          formatter: {
+            isLarge: false
+          }
         },
         {
           prop: "updated",
           label: "Updated",
           minWidth: "180px",
           formatter: {
-            formatDate: true
+            formatDate: true,
+            isLarge: false
           }
         },
         {
           prop: "updated_by",
           label: "Updated By",
-          minWidth: "180px"
+          minWidth: "180px",
+          formatter: {
+            isLarge: false
+          }
         }
       ],
       regionData: [],
-      fullscreenLoading: false
+      fullscreenLoading: false,
+      isLarge: false,
+      isShowClass: "isShow",
+      isHideClass: "isHide"
     };
   },
   methods: {
-    async loadSetupEmail() {
+    async loadSetting() {
       this.form = await this.$commonFunction.getRecord(
         this.getCommonCollection,
         this.getSettingDocument
@@ -220,7 +239,6 @@ export default {
     onSave(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          //this.form.homepage_content = Editor.editor.getHTML();
           await this.$commonFunction.updateRecord(
             this.getCommonCollection,
             this.getSettingDocument,
@@ -233,16 +251,26 @@ export default {
     },
     newRegion() {
       this.$router.replace("edit-region/isNew");
+    },
+    widthCalculating() {
+      if (window.innerWidth > 1000) this.isLarge = true;
+      else this.isLarge = false;
+    },
+    getEditorContent(content) {
+      this.form.homepage_content = content;
     }
   },
   created() {
-    // console.log(Editor.editor.getHTML());
+    window.addEventListener("resize", this.widthCalculating);
     this.$store.commit(
       "SET_FIELDS_QUERY",
       this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
     );
-    this.loadSetupEmail();
+    this.loadSetting();
     this.loadRegion();
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.widthCalculating);
   },
   computed: {
     ...mapGetters([
@@ -250,6 +278,9 @@ export default {
       "getRegionCollection",
       "getSettingDocument"
     ])
+  },
+  mounted() {
+    this.widthCalculating();
   }
 };
 </script>
@@ -269,5 +300,13 @@ export default {
   font-size: 30px;
   font-weight: 600;
   padding-bottom: 10px;
+}
+
+.isShow {
+  display: block;
+}
+
+.isHide {
+  display: none;
 }
 </style>

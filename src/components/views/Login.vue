@@ -25,6 +25,7 @@ export default {
     loginWithGoogle() {
       var provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope("https://www.googleapis.com/auth/drive");
+      provider.addScope("https://www.googleapis.com/auth/admin.directory.user.readonly");
       provider.setCustomParameters({
         login_hint: "user@one-line.com",
         hd: "one-line.com"

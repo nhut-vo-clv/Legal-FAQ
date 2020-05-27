@@ -81,7 +81,7 @@ export default {
   name: "EditRegion",
   data() {
     let arrProp = {
-      name: [{ required: true, type: "string", fieldLabel: 'Name', prop: 'name' }]
+      name: [{ required: true, elmType: "string", fieldLabel: 'Name', prop: 'name' }]
     };
     return {
       form: this.$commonFunction.getFormPorp(arrProp),

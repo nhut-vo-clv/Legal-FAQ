@@ -1,24 +1,38 @@
 <template>
-  <div>
-    <div class="hello">
-      <h1>{{ msg }}</h1>
-    </div>
+  <div v-loading.fullscreen.lock="fullscreenLoading">
+    <div v-html="homepage_content"></div>
   </div>
 </template>
 
 <script>
-import firebase from "firebase";
+import { mapGetters } from "vuex";
 
 export default {
   name: "Home",
   data() {
     return {
-      msg: "WELCOME TO HOME PAGE"
+      homepage_content: "",
+      fullscreenLoading: false,
     };
   },
-  methods: {},
-
-  created() {}
+  methods: {
+    async getHomePageContent() {
+      this.fullscreenLoading = true;
+      await this.$commonFunction.getRecord(
+        this.getCommonCollection,
+        this.getSettingDocument
+      ).then(data => {
+        this.homepage_content = data.homepage_content;
+        this.fullscreenLoading = false;
+      });
+    }
+  },
+  computed: {
+    ...mapGetters(["getCommonCollection", "getSettingDocument"])
+  },
+  created() {
+    this.getHomePageContent();
+  }
 };
 </script>
 

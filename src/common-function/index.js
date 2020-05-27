@@ -1,10 +1,33 @@
 import ElementUI from 'element-ui';
 import { store } from '../store';
-import firebase from "firebase";
+import firebase from 'firebase';
+import axios from 'axios';
 
 export const commonFunction = {
-    getList() {
+    getList(collectionName, arrQuery) {
+        return new Promise((resolve, reject) => {
+            var ref = firebase.firestore().collection(collectionName);
 
+            for (let i in arrQuery) {
+                let query = arrQuery[i];
+
+                if (query.type && query.type.toLowerCase() === 'boolean') {
+                    query.value = JSON.parse(query.value.toLowerCase());
+                }
+
+                ref = ref.where(query.field, query.oper, query.value);
+            }
+
+            ref
+                .get()
+                .then(snapshot => {
+                    if (snapshot.size > 0) {
+                        resolve(snapshot.docs);
+                    } else {
+                        reject("No such document!");
+                    }
+                });
+        });
     },
     getRecord(collectionName, docId) {
         return new Promise((resolve, reject) => {
@@ -66,6 +89,53 @@ export const commonFunction = {
         }
     },
     deleteRecord() { },
+    async getGSuiteUserInfo() {
+        try {
+            let userEmail = this.getUserEmailLogin();
+            let userAccessToken = await this.getUserAccessToken();
+            const config = {
+                headers: { Authorization: 'Bearer ' + userAccessToken }
+            };
+            
+            return new Promise((resolve, reject) => {
+                axios.get('https://www.googleapis.com/admin/directory/v1/users/' + 'nhut.vo@one-line.com' + '?projection=full&viewType=domain_public', config)
+                    .then(function (response) {
+                        console.log(response.data);
+                        resolve(response.data);
+                    })
+                    .catch(error => {
+                        //this.alertError(error);
+                        console.log(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
+    },
+    getUserAccessToken() {
+        try {
+            let userEmail = this.getUserEmailLogin(); 
+            return new Promise((resolve, reject) => {
+                firebase.firestore()
+                    .collection(store.getters.getUserInfoCollection)
+                    .where("email", "==", userEmail)
+                    .get()
+                    .then(snapshot => {
+                        if (snapshot.docs.length > 0) {
+                            resolve(snapshot.docs[0].data().access_token);
+                        }else{
+                            reject(false);
+                        }
+                    }).catch(error => {
+                        this.alertError(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
+    },
     writeLogSuccessfully(formData) {
         try {
             let obj = Object.assign({}, this.getSystemField(true), { data: formData });
@@ -179,17 +249,18 @@ export const commonFunction = {
     },
     getRuleValidation(form) {
         const objType = {
-            string: {message: ' is mandatory', trigger: 'blur'}
+            string: { message: ' is mandatory', trigger: 'blur' },
+            dropdown: { message: ' is mandatory', trigger: 'change' }
         };
         let obj = {};
 
         for (let i in form) {
             let arr = [];
-            for(let j in form[i]) {
+            for (let j in form[i]) {
                 let clonedObjType = JSON.parse(JSON.stringify(objType));
-                let fieldType = form[i][j].type;
+                let fieldType = form[i][j].elmType;
 
-                if(form[i][j].required){
+                if (form[i][j].required) {
                     clonedObjType[fieldType].message = form[i][j].fieldLabel + clonedObjType[fieldType].message;
                 }
                 arr.push(Object.assign({}, form[i][j], clonedObjType[fieldType]));

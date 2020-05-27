@@ -11,7 +11,9 @@ export const store = new Vuex.Store({
       common: 'common',
       region: 'region',
       logs: 'logs',
-      userInfo: 'user_info'
+      userInfo: 'user_info',
+      categoryMasterData: 'category_master_data',
+      request: 'request'
     },
     documents: {
       setting: 'setting'
@@ -39,6 +41,12 @@ export const store = new Vuex.Store({
     },
     getUserInfoCollection: state => {
       return state.collections.userInfo;
+    },
+    getCategoryMasterDataCollection: state => {
+      return state.collections.categoryMasterData;
+    },
+    getRequestCollection: state => {
+      return state.collections.request;
     },
     getSettingDocument: state => {
       return state.documents.setting;

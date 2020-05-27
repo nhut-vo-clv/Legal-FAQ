@@ -3,6 +3,7 @@
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
       <div class="menubar">
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.bold() }"
           @click="commands.bold"
@@ -11,6 +12,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.italic() }"
           @click="commands.italic"
@@ -19,6 +21,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.strike() }"
           @click="commands.strike"
@@ -27,6 +30,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.underline() }"
           @click="commands.underline"
@@ -35,6 +39,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.code() }"
           @click="commands.code"
@@ -43,6 +48,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.paragraph() }"
           @click="commands.paragraph"
@@ -51,6 +57,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.heading({ level: 1 }) }"
           @click="commands.heading({ level: 1 })"
@@ -106,11 +113,11 @@
           <icon name="hr" />
         </button>-->
 
-        <button class="menubar__button" @click="commands.undo">
+        <button type="button" class="menubar__button" @click="commands.undo">
           <i class="fas fa-undo"></i>
         </button>
 
-        <button class="menubar__button" @click="commands.redo">
+        <button type="button" class="menubar__button" @click="commands.redo">
           <i class="fas fa-redo"></i>
         </button>
       </div>
@@ -146,9 +153,20 @@ export default {
     EditorContent,
     EditorMenuBar
   },
+  props: ["value"],
   data() {
     return {
-      editor: new Editor({
+      editor: null,
+      emitAfterOnUpdate: false
+    };
+  },
+  beforeDestroy() {
+    if (this.editor) {
+      this.editor.destroy();
+    }
+  },
+  mounted() {
+    this.editor =  new Editor({
         extensions: [
           new Blockquote(),
           new BulletList(),
@@ -168,33 +186,22 @@ export default {
           new Underline(),
           new History()
         ],
-        content: `
-          <h2>
-            Hi there,
-          </h2>
-          <p>
-            this is a very <em>basic</em> example of tiptap.
-          </p>
-          <pre><code>body { display: none; }</code></pre>
-          <ul>
-            <li>
-              A regular list
-            </li>
-            <li>
-              With regular items
-            </li>
-          </ul>
-          <blockquote>
-            It's amazing 👏
-            <br />
-            – mom
-          </blockquote>
-        `
+        content: this.value,
+        onUpdate: ({ getHTML }) => {
+          this.emitAfterOnUpdate = true;
+          this.$emit("editorContent", getHTML());
+        }
       })
-    };
+    this.editor.setContent(this.value);
   },
-  beforeDestroy() {
-    this.editor.destroy();
+  watch: {
+    value(val) {
+      if (this.emitAfterOnUpdate) {
+        this.emitAfterOnUpdate = false;
+        return;
+      }
+      if (this.editor) this.editor.setContent(val);
+    }
   }
 };
 </script>

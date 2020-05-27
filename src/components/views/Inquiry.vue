@@ -1,228 +1,245 @@
 <template>
   <div class="body-wrap">
-    <el-container>
+    <el-container v-loading.fullscreen.lock="fullscreenLoading">
       <el-main>
-        <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
-          <div class="box-header-actions">
-            <div class="box-title">
-              <div>INQUIRY</div>
-            </div>
-            <div class="box-buttons">
-              <el-button size="small" type="primary" @click="onSubmit">CREATE</el-button>
-              <el-button size="small" type="info">EXCALIBUR</el-button>
-              <el-button size="small">DMM QUYEN</el-button>
-              <el-button size="small" type="danger">CANCEL</el-button>
-            </div>
-          </div>
-
-          <div class="box-header-actions">
-            <div class="box-details">
-              <el-page-header @back="goBack" content="DETAILS"></el-page-header>
-            </div>
-            <div class="box-buttons">
-              <el-button size="small" type="primary" @click="onSubmit">CREATE</el-button>
-              <el-button size="small">CANCEL</el-button>
-            </div>
-          </div>
-          <!-- 
-          <div class="box-title center-item">Inquiry</div>-->
-          <el-form label-position="left" ref="form" :model="form" label-width="120px" size="small">
-            <el-form-item label="Activity name">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item label="Activity zone">
-              <el-select v-model="form.region" placeholder="please select your zone">
-                <el-option label="Zone one" value="shanghai"></el-option>
-                <el-option label="Zone two" value="beijing"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="Activity time">
-              <el-col :span="11">
-                <el-date-picker
-                  type="date"
-                  placeholder="Pick a date"
-                  v-model="form.date1"
-                  style="width: 100%;"
-                ></el-date-picker>
-              </el-col>
-              <el-col :span="2" class="middle-slash">-</el-col>
-              <el-col :span="11">
-                <el-time-picker placeholder="Pick a time" v-model="form.date2" style="width: 100%;"></el-time-picker>
-              </el-col>
-            </el-form-item>
-            <el-form-item label="Instant delivery">
-              <el-switch v-model="form.delivery"></el-switch>
-            </el-form-item>
-            <el-form-item label="Activity type">
-              <el-checkbox-group v-model="form.type">
-                <el-checkbox label="Online activities" name="type"></el-checkbox>
-                <el-checkbox label="Promotion activities" name="type"></el-checkbox>
-                <el-checkbox label="Offline activities" name="type"></el-checkbox>
-                <el-checkbox label="Simple brand exposure" name="type"></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="Resources">
-              <el-radio-group v-model="form.resource">
-                <el-radio label="Sponsor"></el-radio>
-                <el-radio label="Venue"></el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="Activity form">
-              <el-input type="textarea" v-model="form.desc"></el-input>
-            </el-form-item>
-          </el-form>
-        </el-col>
-
-        <el-col>
-          <hr />
-          <p>{{screenWidth}}</p>
-          <el-table :data="tableData">
-            <el-table-column type="expand">
-              <template slot-scope="props">
-                <p>State: {{ props.row.state }}</p>
-                <p>City: {{ props.row.city }}</p>
-                <p>Address: {{ props.row.address }}</p>
-                <p>Zip: {{ props.row.zip }}</p>
+        <el-row>
+          <el-col
+            :xl="{span: 16, offset: 4}"
+            :lg="{span: 16, offset: 4}"
+            :md="{span: 16, offset: 4}"
+            :sm="{span: 16, offset: 4}"
+          >
+            <div class="header-title center-item">Inquiry</div>
+          </el-col>
+          <el-table :data="regionData" stripe style="width: 100%">
+            <el-table-column label="Name" min-width="150px" prop="name" sortable>
+              <template #default="{row}">
+                <router-link :to="'edit-region/' + row.documentId">{{row['name']}}</router-link>
               </template>
             </el-table-column>
-            <!-- <el-table-column label="Date" width="150px" prop="date" class-name="hidden-md-and-down"></el-table-column> -->
-            <el-table-column label="Date" width="150px" prop="date" v-if="isLarge"></el-table-column>
-            <el-table-column prop="zip" width="100px" label="Zip"></el-table-column>
-            <el-table-column prop="address" width="auto" label="Address" v-if="isLarge"></el-table-column>
-            <el-table-column prop="city" width="auto" label="City" v-if="isLarge"></el-table-column>
-            <el-table-column label="Name" width="auto" prop="name"></el-table-column>
+            <el-table-column label="Active" min-width="150px" prop="active" sortable></el-table-column>
+            <el-table-column
+              label="Created"
+              min-width="150px"
+              prop="created"
+              sortable
+              v-if="isLarge"
+            >
+              <template #default="{row}">{{$commonFunction.formatDate(row["created"])}}</template>
+            </el-table-column>
+            <el-table-column
+              label="Created By"
+              min-width="150px"
+              prop="created_by"
+              sortable
+              v-if="isLarge"
+            ></el-table-column>
+            <el-table-column
+              label="Updated"
+              min-width="150px"
+              prop="updated"
+              sortable
+              v-if="isLarge"
+            >
+              <template #default="{row}">{{$commonFunction.formatDate(row["updated"])}}</template>
+            </el-table-column>
+            <el-table-column
+              label="Updated By"
+              min-width="150px"
+              prop="updated_by"
+              sortable
+              v-if="isLarge"
+            ></el-table-column>
           </el-table>
-        </el-col>
-        <el-col>
-          <tiptap></tiptap>
-        </el-col>
+        </el-row>
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script>
-import tiptap from "../elements/Editor";
-import firebase from "firebase";
+import { mapGetters } from "vuex";
+import Editor from "../elements/Editor";
+
+let arrProp = {
+  super_email: [
+    {
+      required: false,
+      elmType: "string",
+      fieldLabel: "Super Email",
+      prop: "super_email"
+    }
+  ],
+  upload_email: [
+    {
+      required: true,
+      elmType: "string",
+      fieldLabel: "Owner Email Upload",
+      prop: "upload_email"
+    }
+  ],
+  homepage_content: [
+    {
+      required: false,
+      elmType: "string",
+      fieldLabel: "Home Page",
+      prop: "homepage_content"
+    }
+  ]
+};
+
 export default {
-  name: "Inquiry",
+  name: "Setting",
   components: {
-    tiptap
+    Editor
   },
   data() {
     return {
-      msg: "Wellcome to home page",
-      screenWidth: 0,
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
-      },
-      search: "",
-      isLarge: false,
-      tableData: [
+      form: this.$commonFunction.getFormPorp(arrProp),
+      rules: this.$commonFunction.getRuleValidation(arrProp),
+      columns: [
         {
-          date: "2016-05-03",
-          name: "Tom",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
+          prop: "name",
+          label: "Name",
+          activeFilterQuery: true,
+          type: "string"
         },
         {
-          date: "2016-05-02",
-          name: "Tom",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
+          prop: "active",
+          label: "Active",
+          minWidth: "180px",
+          activeFilterQuery: true,
+          type: "boolean",
+          formatter: {
+            isLarge: true
+          }
         },
         {
-          date: "2016-05-04",
-          name: "Tom",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
+          prop: "created",
+          label: "Created",
+          minWidth: "180px",
+          formatter: {
+            formatDate: true,
+            isLarge: false
+          }
         },
         {
-          date: "2016-05-01",
-          name: "Tom1",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
+          prop: "created_by",
+          label: "Created By",
+          minWidth: "180px",
+          formatter: {
+            isLarge: false
+          }
         },
         {
-          date: "2016-05-08",
-          name: "Tom",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
+          prop: "updated",
+          label: "Updated",
+          minWidth: "180px",
+          formatter: {
+            formatDate: true,
+            isLarge: false
+          }
         },
         {
-          date: "2016-05-06",
-          name: "Tom",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
-        },
-        {
-          date: "2016-05-07",
-          name: "Tom",
-          state: "California",
-          city: "Los Angeles",
-          address: "No. 189, Grove St, Los Angeles",
-          zip: "CA 90036"
+          prop: "updated_by",
+          label: "Updated By",
+          minWidth: "180px",
+          formatter: {
+            isLarge: false
+          }
         }
-      ]
+      ],
+      regionData: [],
+      fullscreenLoading: false,
+      isLarge: false,
+      isShowClass: "isShow",
+      isHideClass: "isHide"
     };
   },
-
-  computed: {},
-
-  mounted() {
-    //screen.addEventListener("resize", () => (this.screenWidth = screen.width));
-    this.widthCalculating();
-  },
-
   methods: {
-    onSubmit() {
-      alert("submit!");
+    async loadSetting() {
+      this.form = await this.$commonFunction.getRecord(
+        this.getCommonCollection,
+        this.getSettingDocument
+      );
     },
+    async loadRegion(arrQuery) {
+      this.fullscreenLoading = true;
+      this.regionData = [];
+      var ref = this.$db.collection(this.getRegionCollection);
 
-    goBack() {
-      console.log("go back");
+      for (let i in arrQuery) {
+        let query = arrQuery[i];
+        ref = ref.where(query.field, query.oper, query.value);
+      }
+      try {
+        ref
+          .get()
+          .then(snapshot => {
+            snapshot.docs.forEach(doc => {
+              let obj = {};
+              var data = doc.data();
+              obj = data;
+              obj.active = data.active === true ? "True" : "False";
+              obj.created = data.created.toDate();
+              obj.updated = data.updated.toDate();
+              obj.documentId = doc.id;
+              this.regionData.push(obj);
+            });
+            this.fullscreenLoading = false;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      } catch (error) {
+        console.log(error.message);
+      }
     },
-
-    handleEdit(index, row) {
-      console.log(index, row);
+    onSave(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          await this.$commonFunction.updateRecord(
+            this.getCommonCollection,
+            this.getSettingDocument,
+            this.form
+          );
+        } else {
+          return false;
+        }
+      });
     },
-    handleDelete(index, row) {
-      console.log(index, row);
+    newRegion() {
+      this.$router.replace("edit-region/isNew");
     },
-
     widthCalculating() {
-      this.screenWidth =
-        "resolution: " + screen.width + " - innerWidth: " + window.innerWidth;
       if (window.innerWidth > 1000) this.isLarge = true;
       else this.isLarge = false;
+    },
+    getEditorContent(content) {
+      this.form.homepage_content = content;
     }
   },
-
   created() {
     window.addEventListener("resize", this.widthCalculating);
+    this.$store.commit(
+      "SET_FIELDS_QUERY",
+      this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
+    );
+    this.loadSetting();
+    this.loadRegion();
   },
-
   destroyed() {
     window.removeEventListener("resize", this.widthCalculating);
+  },
+  computed: {
+    ...mapGetters([
+      "getCommonCollection",
+      "getRegionCollection",
+      "getSettingDocument"
+    ])
+  },
+  mounted() {
+    this.widthCalculating();
   }
 };
 </script>
@@ -237,38 +254,18 @@ export default {
   text-align: center;
 }
 
-.middle-slash {
-  text-align: center;
-}
-
-.box-header-actions {
-  background-color: #eee;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-  display: flex;
-  padding: 10px;
-  line-height: 0%;
-}
-
-.box-buttons {
-  margin-left: auto;
-}
-
-.box-buttons > button {
-  margin: 2px;
-}
-
-.box-title {
-  transform: translateY(50%);
-  padding-right: 20px;
-  font-size: 18px;
+.header-title {
   color: #bd0f72;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 600;
+  padding-bottom: 10px;
 }
 
-.box-details {
-  transform: translateY(20%);
-  padding-right: 20px;
+.isShow {
+  display: block;
 }
 
+.isHide {
+  display: none;
+}
 </style>
