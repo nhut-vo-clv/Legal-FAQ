@@ -11,8 +11,9 @@
           >
             <h3 class="title title-large">Welcome to Legal FAQ Portal</h3>
             <img class="iamge-center" src="/static/laptop-3196481__340.jpg" alt="Girl in a jacket" />
-            <p>If you have legal/insurance inquiries, please raise a request through this portal.</p>
-            <h5 class="title-red">How to use this portal</h5>
+            <p class="text-center">If you have legal/insurance inquiries, please raise a request through this portal.</p>
+            <hr/>
+            <h5 class="title-red text-center">How to use this portal</h5>
             <h5 class="title-red-table">1. Search past inquiries.</h5>
             <p>First, check whether similar inquiry already exist under “Published FAQ”.</p>
             <img class="iamge-center" src="/static/laptop-3196481__340.jpg" alt="Girl in a jacket" />
@@ -20,8 +21,8 @@
             <p>Send an inquiry from “MAKE REQUEST”.</p>
             <img class="iamge-center" src="/static/laptop-3196481__340.jpg" alt="Girl in a jacket" />
             <h5 class="title-red-table">2-1. Make a Request</h5>
-            <p>Click “MAKE REQUEST”. Fill in the information of your request and click "Submit".</p>
-            <p>E-mail will be sent to GHQ or RHQ legal/insurance team.</p>
+            <p>Click “MAKE REQUEST”. Fill in the information of your request and click "Submit".
+            E-mail will be sent to GHQ or RHQ legal/insurance team.</p>
             <img class="iamge-center" src="/static/laptop-3196481__340.jpg" alt="Girl in a jacket" />
             <h5 class="title-red-table">2-2. Response from Legal/Insurance team</h5>
             <p>When legal/insurance team reply to your request, you will receive e-mail. You can check the response from link in e-mail.</p>
@@ -115,5 +116,9 @@ export default {
   margin-bottom: 30px;
   max-width: 90%;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+.text-center {
+
 }
 </style>

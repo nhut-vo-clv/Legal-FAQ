@@ -75,7 +75,10 @@ const router = new Router({
         requiresAuth: true
       }
     }
-  ]
+  ],
+  mode:  'history',
+  linkActiveClass: 'is-active',
+  linkExactActiveClass: 'is-exact-active',
 });
 
 router.beforeEach((to, from, next) => {
