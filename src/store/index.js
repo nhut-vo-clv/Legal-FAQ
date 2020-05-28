@@ -56,6 +56,9 @@ export const store = new Vuex.Store({
     },
     getSavedErrorMessage: () => {
       return 'Fail to save';
+    },
+    getDomain: () => {
+      return 'one-line.com';
     }
   }
 });

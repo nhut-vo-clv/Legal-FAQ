@@ -146,7 +146,8 @@ import {
   Link,
   Strike,
   Underline,
-  History
+  History,
+  Image
 } from "tiptap-extensions";
 export default {
   components: {
@@ -184,7 +185,8 @@ export default {
           new Italic(),
           new Strike(),
           new Underline(),
-          new History()
+          new History(),
+          new Image()
         ],
         content: this.value,
         onUpdate: ({ getHTML }) => {

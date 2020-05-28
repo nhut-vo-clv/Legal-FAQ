@@ -11,45 +11,51 @@
           >
             <div class="header-title center-item">Inquiry</div>
           </el-col>
-          <el-table :data="regionData" stripe style="width: 100%">
-            <el-table-column label="Name" min-width="150px" prop="name" sortable>
-              <template #default="{row}">
-                <router-link :to="'edit-region/' + row.documentId">{{row['name']}}</router-link>
-              </template>
-            </el-table-column>
-            <el-table-column label="Active" min-width="150px" prop="active" sortable></el-table-column>
+          <el-table :data="listInquiry" border style="width: 100%">
+            <el-table-column type="index" width="30"></el-table-column>
+            <el-table-column label="ID" width="150px" prop="id" sortable></el-table-column>
             <el-table-column
-              label="Created"
-              min-width="150px"
-              prop="created"
+              label="Category"
+              width="150px"
+              prop="category"
+              :filters="listCategory"
+              :filter-method="filterHandler"
               sortable
-              v-if="isLarge"
-            >
-              <template #default="{row}">{{$commonFunction.formatDate(row["created"])}}</template>
-            </el-table-column>
+            ></el-table-column>
             <el-table-column
-              label="Created By"
-              min-width="150px"
-              prop="created_by"
+              label="Requester"
+              width="150px"
+              prop="requester"
               sortable
               v-if="isLarge"
             ></el-table-column>
+            <el-table-column label="Request to" width="150px" prop="request_to" sortable></el-table-column>
+            <el-table-column label="Inquiry" min-width="150px" prop="inquiry" sortable></el-table-column>
+            <el-table-column
+              label="Risk to ONE"
+              min-width="150px"
+              prop="risk_to"
+              sortable
+              v-if="isLarge"
+            ></el-table-column>
+            <el-table-column label="Status" min-width="150px" prop="status" sortable v-if="isLarge"></el-table-column>
             <el-table-column
               label="Updated"
               min-width="150px"
               prop="updated"
               sortable
               v-if="isLarge"
-            >
-              <template #default="{row}">{{$commonFunction.formatDate(row["updated"])}}</template>
-            </el-table-column>
-            <el-table-column
-              label="Updated By"
-              min-width="150px"
-              prop="updated_by"
-              sortable
-              v-if="isLarge"
             ></el-table-column>
+            <el-table-column label="Publish" width="75" prop="publish" sortable>
+              <template #default="{row}">
+                <el-checkbox v-model="row.publish"></el-checkbox>
+              </template>
+            </el-table-column>
+            <el-table-column width="30" align="right">
+              <template #default="{row}">
+                <router-link :to="'make-request/' + row.documentId"><i class="el-icon-view"></i></router-link>
+              </template>
+            </el-table-column>
           </el-table>
         </el-row>
       </el-main>
@@ -61,33 +67,6 @@
 import { mapGetters } from "vuex";
 import Editor from "../elements/Editor";
 
-let arrProp = {
-  super_email: [
-    {
-      required: false,
-      elmType: "string",
-      fieldLabel: "Super Email",
-      prop: "super_email"
-    }
-  ],
-  upload_email: [
-    {
-      required: true,
-      elmType: "string",
-      fieldLabel: "Owner Email Upload",
-      prop: "upload_email"
-    }
-  ],
-  homepage_content: [
-    {
-      required: false,
-      elmType: "string",
-      fieldLabel: "Home Page",
-      prop: "homepage_content"
-    }
-  ]
-};
-
 export default {
   name: "Setting",
   components: {
@@ -95,148 +74,96 @@ export default {
   },
   data() {
     return {
-      form: this.$commonFunction.getFormPorp(arrProp),
-      rules: this.$commonFunction.getRuleValidation(arrProp),
-      columns: [
-        {
-          prop: "name",
-          label: "Name",
-          activeFilterQuery: true,
-          type: "string"
-        },
-        {
-          prop: "active",
-          label: "Active",
-          minWidth: "180px",
-          activeFilterQuery: true,
-          type: "boolean",
-          formatter: {
-            isLarge: true
-          }
-        },
-        {
-          prop: "created",
-          label: "Created",
-          minWidth: "180px",
-          formatter: {
-            formatDate: true,
-            isLarge: false
-          }
-        },
-        {
-          prop: "created_by",
-          label: "Created By",
-          minWidth: "180px",
-          formatter: {
-            isLarge: false
-          }
-        },
-        {
-          prop: "updated",
-          label: "Updated",
-          minWidth: "180px",
-          formatter: {
-            formatDate: true,
-            isLarge: false
-          }
-        },
-        {
-          prop: "updated_by",
-          label: "Updated By",
-          minWidth: "180px",
-          formatter: {
-            isLarge: false
-          }
-        }
-      ],
-      regionData: [],
       fullscreenLoading: false,
       isLarge: false,
-      isShowClass: "isShow",
-      isHideClass: "isHide"
+      listInquiry: [],
+      listCategory: []
     };
   },
   methods: {
-    async loadSetting() {
-      this.form = await this.$commonFunction.getRecord(
-        this.getCommonCollection,
-        this.getSettingDocument
-      );
-    },
-    async loadRegion(arrQuery) {
-      this.fullscreenLoading = true;
-      this.regionData = [];
-      var ref = this.$db.collection(this.getRegionCollection);
-
-      for (let i in arrQuery) {
-        let query = arrQuery[i];
-        ref = ref.where(query.field, query.oper, query.value);
-      }
-      try {
-        ref
-          .get()
-          .then(snapshot => {
-            snapshot.docs.forEach(doc => {
-              let obj = {};
-              var data = doc.data();
-              obj = data;
-              obj.active = data.active === true ? "True" : "False";
-              obj.created = data.created.toDate();
-              obj.updated = data.updated.toDate();
-              obj.documentId = doc.id;
-              this.regionData.push(obj);
-            });
-            this.fullscreenLoading = false;
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      } catch (error) {
-        console.log(error.message);
-      }
-    },
-    onSave(formName) {
-      this.$refs[formName].validate(async valid => {
-        if (valid) {
-          await this.$commonFunction.updateRecord(
-            this.getCommonCollection,
-            this.getSettingDocument,
-            this.form
-          );
-        } else {
-          return false;
+    async loadCategory() {
+      this.listCategory = [];
+      let arrQuery = [
+        {
+          field: "active",
+          oper: "==",
+          value: "true",
+          type: "boolean"
         }
+      ];
+
+      let arrData = await this.$commonFunction.getList(
+        this.getCategoryMasterDataCollection,
+        arrQuery
+      );
+
+      arrData.forEach(doc => {
+        let obj = {};
+        let data = doc.data();
+        obj.text = data.name;
+        obj.value = data.name;
+        obj.order = data.order;
+        this.listCategory.push(obj);
+      });
+
+      this.listCategory.sort(function(a, b) {
+        return a.order - b.order;
       });
     },
-    newRegion() {
-      this.$router.replace("edit-region/isNew");
+    async loadInquiry() {
+      this.fullscreenLoading = true;
+      this.listInquiry = [];
+      let arrQuery = [
+        {
+          field: "active",
+          oper: "==",
+          value: "true",
+          type: "boolean"
+        }
+      ];
+
+      let arrData = await this.$commonFunction.getList(
+        this.getRequestCollection,
+        arrQuery
+      );
+
+      arrData.forEach(doc => {
+        let obj = {};
+        let data = doc.data();
+        obj.id = data.id;
+        obj.category = data.category;
+        obj.requester = data.requester_name + "\n" + data.created;
+        obj.request_to = data.request_to;
+        obj.inquiry = data.summary;
+        obj.risk_to = data.risk_to;
+        obj.status = data.status;
+        obj.updated = data.updated_by + "\n" + data.updated;
+        obj.publish = data.publish;
+        obj.documentId = doc.id;
+        this.listInquiry.push(obj);
+      });
+
+      this.fullscreenLoading = false;
+    },
+    filterHandler(value, row, column) {
+      const property = column["property"];
+      return row[property] === value;
     },
     widthCalculating() {
       if (window.innerWidth > 1000) this.isLarge = true;
       else this.isLarge = false;
-    },
-    getEditorContent(content) {
-      this.form.homepage_content = content;
     }
   },
   created() {
     window.addEventListener("resize", this.widthCalculating);
-    this.$store.commit(
-      "SET_FIELDS_QUERY",
-      this.columns.filter(x => x.activeFilterQuery === true).map(x => x)
-    );
-    this.loadSetting();
-    this.loadRegion();
+    this.loadCategory();
+    this.loadInquiry();
   },
   destroyed() {
     window.removeEventListener("resize", this.widthCalculating);
   },
   computed: {
-    ...mapGetters([
-      "getCommonCollection",
-      "getRegionCollection",
-      "getSettingDocument"
-    ])
+    ...mapGetters(["getRequestCollection", "getCategoryMasterDataCollection"])
   },
   mounted() {
     this.widthCalculating();

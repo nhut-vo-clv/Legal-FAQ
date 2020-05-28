@@ -68,7 +68,7 @@ const router = new Router({
       }
     },
     {
-      path: '/make-request',
+      path: '/make-request/:id',
       name: 'Make Request',
       component: MakeRequest,
       meta: {

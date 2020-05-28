@@ -8,7 +8,7 @@
             <router-link to="/home">HOME</router-link>
           </li>
           <li>
-            <router-link to="/make-request">Make Request</router-link>
+            <router-link to="/make-request/isNew">Make Request</router-link>
           </li>
           <li>
             <router-link to="/inquiry">Inquiry</router-link>

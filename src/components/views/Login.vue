@@ -26,9 +26,10 @@ export default {
       var provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope("https://www.googleapis.com/auth/drive");
       provider.addScope("https://www.googleapis.com/auth/admin.directory.user.readonly");
+      provider.addScope("https://www.googleapis.com/auth/cloud-platform");
       provider.setCustomParameters({
         login_hint: "user@one-line.com",
-        hd: "one-line.com"
+        hd: this.getDomain
       });
 
       firebase
@@ -95,7 +96,7 @@ export default {
         ")";
   },
   computed: {
-    ...mapGetters(["getUserInfoCollection"])
+    ...mapGetters(["getUserInfoCollection", "getDomain"])
   }
 };
 </script>

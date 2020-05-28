@@ -269,5 +269,27 @@ export const commonFunction = {
         }
 
         return obj;
+    },
+    async searchUserInDomain(email) {
+        try {
+            let userAccessToken = await this.getUserAccessToken();
+            const config = {
+                headers: { Authorization: 'Bearer ' + userAccessToken }
+            };
+
+            return new Promise((resolve, reject) => {
+                axios.get('https://www.googleapis.com/admin/directory/v1/users?domain=' + store.getters.getDomain + '&projection=full&query=email%3A' + email + '&maxResults=5&viewType=domain_public', config)
+                    .then(function (response) {
+                        resolve(response.data);
+                    })
+                    .catch(error => {
+                        //this.alertError(error);
+                        console.log(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
     }
 }

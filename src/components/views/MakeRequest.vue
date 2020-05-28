@@ -72,10 +72,43 @@
               <el-input v-model="form.contact_number"></el-input>
             </el-form-item>
             <el-form-item :label="rules.request_to[0].fieldLabel" :prop="rules.request_to[0].prop">
-              <el-input v-model="form.request_to"></el-input>
+              <el-select size="small" v-model="form.request_to" placeholder="Please select Region">
+                <el-option
+                  v-for="(region, idx) in listRegion"
+                  :key="idx"
+                  :label="region.name"
+                  :value="region.name"
+                />
+              </el-select>
             </el-form-item>
             <el-form-item :label="rules.copy_to[0].fieldLabel" :prop="rules.copy_to[0].prop">
-              <el-input v-model="form.copy_to"></el-input>
+              <el-tag
+                :key="tag"
+                v-for="tag in tagCopyTo"
+                closable
+                :disable-transitions="false"
+                @close="handleCloseCopyTo(tag)"
+              >{{tag}}</el-tag>
+              <el-autocomplete
+                v-model="inputCopyToValue"
+                :fetch-suggestions="querySearchUser"
+                @select="handleSelectUser"
+                :trigger-on-focus="false"
+                v-if="inputCopyToVisible"
+              >
+                <template slot-scope="{item}">
+                  <div>{{ item.photo }}</div>
+                  <div>{{ item.fullName }}</div>
+                  <div>{{ item.userTitle }}</div>
+                  <div>{{ item.value }}</div>
+                </template>
+              </el-autocomplete>
+              <el-button
+                v-else
+                class="button-new-tag"
+                size="small"
+                @click="showCopyToInput"
+              >+ New Email</el-button>
             </el-form-item>
             <el-form-item
               :label="rules.request_date[0].fieldLabel"
@@ -296,7 +329,13 @@ export default {
     return {
       form: this.$commonFunction.getFormPorp(arrProp),
       rules: this.$commonFunction.getRuleValidation(arrProp),
-      listCategory: []
+      paramDocId: this.$route.params.id,
+      listCategory: [],
+      listRegion: [],
+      tagCopyTo: [],
+      inputCopyToVisible: false,
+      inputCopyToValue: "",
+      isNewRecord: "isNew"
     };
   },
   methods: {
@@ -315,6 +354,7 @@ export default {
         this.getCategoryMasterDataCollection,
         arrQuery
       );
+
       arrData.forEach(doc => {
         this.listCategory.push(doc.data());
       });
@@ -323,27 +363,125 @@ export default {
         return a.order - b.order;
       });
     },
+    async loadRegion() {
+      this.fullscreenLoading = true;
+      this.listRegion = [];
+      let arrQuery = [
+        {
+          field: "active",
+          oper: "==",
+          value: "true",
+          type: "boolean"
+        }
+      ];
+
+      let arrData = await this.$commonFunction.getList(
+        this.getRegionCollection,
+        arrQuery
+      );
+
+      arrData.forEach(doc => {
+        this.listRegion.push(doc.data());
+      });
+
+      this.fullscreenLoading = false;
+    },
+    async loadRequest() {
+      this.fullscreenLoading = true;
+      this.form = await this.$commonFunction.getRecord(
+        this.getRequestCollection,
+        this.paramDocId
+      );
+      this.tagCopyTo = this.form.copy_to;
+      this.fullscreenLoading = false;
+    },
     categoryOnChange() {},
     onSubmit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          this.form.active = true;
-          await this.$commonFunction.insertRecord(
-            this.getRequestCollection,
-            this.form
-          );
+          if (this.paramDocId !== this.isNewRecord) {
+            this.form.copy_to = this.tagCopyTo;
+            await this.$commonFunction.updateRecord(
+              this.getRequestCollection,
+              this.form
+            );
+          }else{
+            this.form.active = true;
+            this.form.status = "Processing to Submitted";
+            this.form.publish = false;
+            await this.$commonFunction.insertRecord(
+              this.getRequestCollection,
+              this.form
+            );
+          }
         } else {
           return false;
         }
       });
+    },
+    async querySearchUser(queryString, cb) {
+      let arrUser = await this.$commonFunction.searchUserInDomain(queryString);
+      let arrData = [];
+
+      for (let i in arrUser.users) {
+        let user = arrUser.users[i];
+        let obj = {};
+
+        obj.fullName = user.name.fullName;
+        obj.value = user.primaryEmail;
+
+        if (user.organizations) {
+          obj.userTitle = user.organizations[0].title;
+        } else {
+          obj.userTitle = "";
+        }
+
+        if (user.thumbnailPhotoUrl) {
+          obj.photo = user.thumbnailPhotoUrl;
+        } else {
+          obj.photo =
+            "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/s200/photo.jpg";
+        }
+
+        arrData.push(obj);
+      }
+      cb(arrData);
+    },
+    handleSelectUser(item) {
+      this.handleInputConfirm(item.value);
+    },
+    handleCloseCopyTo(tag) {
+      this.tagCopyTo.splice(this.tagCopyTo.indexOf(tag), 1);
+    },
+    showCopyToInput() {
+      this.inputCopyToVisible = true;
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+    handleInputConfirm(email) {
+      if (email) {
+        this.tagCopyTo.push(email);
+      }
+      this.inputCopyToVisible = false;
+      this.inputCopyToValue = "";
     }
   },
-  created() {
+  async created() {
     this.loadCategory();
+    this.loadRegion();
+
+    if (this.paramDocId !== this.isNewRecord) {
+      this.loadRequest();
+    }
     //await this.$commonFunction.getGSuiteUserInfo();
   },
   computed: {
-    ...mapGetters(["getCategoryMasterDataCollection", "getRequestCollection"])
+    ...mapGetters([
+      "getCategoryMasterDataCollection",
+      "getRequestCollection",
+      "getRegionCollection"
+    ])
   }
 };
 </script>
