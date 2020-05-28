@@ -193,7 +193,7 @@ export const commonFunction = {
         if (minutes < 10) minutes = "0" + minutes;
         if (seconds < 10) seconds = "0" + seconds;
 
-        return [day, month, year].join("-") + ' ' + [hours, minutes, seconds].join(':');
+        return [year, month, day].join("-") + ' ' + [hours, minutes, seconds].join(':');
     },
     alertSuccess() {
         ElementUI.Message({
@@ -250,7 +250,8 @@ export const commonFunction = {
     getRuleValidation(form) {
         const objType = {
             string: { message: ' is mandatory', trigger: 'blur' },
-            dropdown: { message: ' is mandatory', trigger: 'change' }
+            dropdown: { message: ' is mandatory', trigger: 'change' },
+            array: { message: ' is mandatory', trigger: 'change' }
         };
         let obj = {};
 
@@ -291,5 +292,10 @@ export const commonFunction = {
         } catch (error) {
             this.alertError(error.message);
         }
+    },
+    getAvatarCharacter(name) {
+        let regex = /((\w*).(\.|\s))+(.)/g;
+        let avaCharacter = regex.exec(name);
+        return avaCharacter[2].charAt(0) + avaCharacter[4].charAt(0);
     }
 }

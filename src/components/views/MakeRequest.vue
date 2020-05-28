@@ -81,7 +81,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item :label="rules.copy_to[0].fieldLabel" :prop="rules.copy_to[0].prop">
+            <el-form-item :label="rules.copy_to[0].fieldLabel">
               <el-tag
                 :key="tag"
                 v-for="tag in tagCopyTo"
@@ -144,7 +144,7 @@
               ></el-input>
             </el-form-item>
             <el-form-item :label="rules.comment[0].fieldLabel" :prop="rules.comment[0].prop">
-              <editor></editor>
+              <editor v-on:editorContent="getEditorContent" v-model="commentContent"></editor>
             </el-form-item>
             <el-form-item
               :label="rules.commenter_name[0].fieldLabel"
@@ -158,6 +158,23 @@
             >
               <el-input v-model="form.commenter_title"></el-input>
             </el-form-item>
+            <div>
+              <el-timeline>
+                <el-timeline-item
+                  v-for="(comment, idx) in listComment"
+                  :key="idx"
+                  :timestamp="$commonFunction.getAvatarCharacter(comment.commenter_name) + ' ' + comment.commenter_name + ' - ' + $commonFunction.formatDate(comment.created.toDate())"
+                  :color="comment.isLegalTeam ? '#bd0f72' : '#FFFF00'"
+                  placement="top"
+                >
+                  <el-card>
+                    <p>From: {{ comment.isLegalTeam ? 'Legal Team' : 'Requester' }}</p>
+                    <p>Title & Section: {{ comment.title_section }}</p>
+                    Comment: <div v-html="comment.value"></div>
+                  </el-card>
+                </el-timeline-item>
+              </el-timeline>
+            </div>
             <el-form-item :label="rules.remark[0].fieldLabel" :prop="rules.remark[0].prop">
               <el-input v-model="form.remark"></el-input>
             </el-form-item>
@@ -248,7 +265,7 @@ let arrProp = {
   copy_to: [
     {
       required: false,
-      elmType: "string",
+      elmType: "array",
       fieldLabel: "Copy to",
       prop: "copy_to"
     }
@@ -332,10 +349,12 @@ export default {
       paramDocId: this.$route.params.id,
       listCategory: [],
       listRegion: [],
+      listComment: [],
       tagCopyTo: [],
       inputCopyToVisible: false,
       inputCopyToValue: "",
-      isNewRecord: "isNew"
+      isNewRecord: "isNew",
+      commentContent: ''
     };
   },
   methods: {
@@ -392,20 +411,53 @@ export default {
         this.getRequestCollection,
         this.paramDocId
       );
+
       this.tagCopyTo = this.form.copy_to;
+
+      await this.loadComment(this.paramDocId);
+
+      this.fullscreenLoading = false;
+    },
+    async loadComment(requestId) {
+      this.fullscreenLoading = true;
+      this.listComment = [];
+      let arrQuery = [
+        {
+          field: "active",
+          oper: "==",
+          value: "true",
+          type: "boolean"
+        },
+        {
+          field: "request_id",
+          oper: "==",
+          value: requestId
+        }
+      ];
+
+      let arrData = await this.$commonFunction.getList(
+        this.getCommentCollection,
+        arrQuery
+      );
+
+      arrData.forEach(doc => {
+        this.listComment.push(doc.data());
+      });
+
       this.fullscreenLoading = false;
     },
     categoryOnChange() {},
     onSubmit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          this.form.copy_to = this.tagCopyTo;
           if (this.paramDocId !== this.isNewRecord) {
-            this.form.copy_to = this.tagCopyTo;
             await this.$commonFunction.updateRecord(
               this.getRequestCollection,
+              this.paramDocId,
               this.form
             );
-          }else{
+          } else {
             this.form.active = true;
             this.form.status = "Processing to Submitted";
             this.form.publish = false;
@@ -413,6 +465,23 @@ export default {
               this.getRequestCollection,
               this.form
             );
+          }
+
+          if(this.commentContent){
+            let objComment = {};
+            objComment.active = true;
+            objComment.commenter_name = 'Nam Tran';
+            objComment.commenter_title = 'DOU';
+            objComment.isLegalTeam = true;
+            objComment.request_id = this.paramDocId;
+            objComment.value = this.commentContent;
+
+            await this.$commonFunction.insertRecord(
+              this.getCommentCollection,
+              objComment
+            );
+
+            await this.loadComment(this.paramDocId);
           }
         } else {
           return false;
@@ -465,9 +534,13 @@ export default {
       }
       this.inputCopyToVisible = false;
       this.inputCopyToValue = "";
+    },
+    getEditorContent(content) {
+      this.commentContent = content;
     }
   },
   async created() {
+    this.form.copy_to = [];
     this.loadCategory();
     this.loadRegion();
 
@@ -480,7 +553,8 @@ export default {
     ...mapGetters([
       "getCategoryMasterDataCollection",
       "getRequestCollection",
-      "getRegionCollection"
+      "getRegionCollection",
+      "getCommentCollection"
     ])
   }
 };

@@ -29,12 +29,6 @@
               >
                 <el-input v-model="form.upload_email"></el-input>
               </el-form-item>
-              <el-form-item
-                :label="rules.homepage_content[0].fieldLabel"
-                :prop="rules.homepage_content[0].prop"
-              >
-                <editor v-on:editorContent="getEditorContent" v-model="form.homepage_content"></editor>
-              </el-form-item>
               <div class="center-item">
                 <el-button type="primary" @click="onSave('formSetting')">Save</el-button>
               </div>
@@ -118,14 +112,6 @@ let arrProp = {
       fieldLabel: "Owner Email Upload",
       prop: "upload_email"
     }
-  ],
-  homepage_content: [
-    {
-      required: false,
-      elmType: "string",
-      fieldLabel: "Home Page",
-      prop: "homepage_content"
-    }
   ]
 };
 
@@ -192,9 +178,7 @@ export default {
       ],
       regionData: [],
       fullscreenLoading: false,
-      isLarge: false,
-      isShowClass: "isShow",
-      isHideClass: "isHide"
+      isLarge: false
     };
   },
   methods: {
@@ -255,9 +239,6 @@ export default {
     widthCalculating() {
       if (window.innerWidth > 1000) this.isLarge = true;
       else this.isLarge = false;
-    },
-    getEditorContent(content) {
-      this.form.homepage_content = content;
     }
   },
   created() {
