@@ -341,8 +341,6 @@ h3 {
 
 .editor {
   position: relative;
-  max-width: 30rem;
-  margin: 0 auto 5rem auto;
 
   &__content {
     overflow-wrap: break-word;
