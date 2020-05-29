@@ -47,14 +47,14 @@
           <i class="fas fa-code"></i>
         </button>
 
-        <button
+        <!-- <button
           type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.paragraph() }"
           @click="commands.paragraph"
         >
           <i class="fas fa-paragraph"></i>
-        </button>
+        </button>-->
 
         <button
           type="button"
@@ -66,6 +66,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.bullet_list() }"
           @click="commands.bullet_list"
@@ -74,6 +75,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.ordered_list() }"
           @click="commands.ordered_list"
@@ -82,6 +84,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.blockquote() }"
           @click="commands.blockquote"
@@ -90,6 +93,7 @@
         </button>
 
         <button
+          type="button"
           class="menubar__button"
           :class="{ 'is-active': isActive.code_block() }"
           @click="commands.code_block"
@@ -97,7 +101,7 @@
           <i class="fas fa-code"></i>
         </button>
 
-        <button class="menubar__button" @click="commands.horizontal_rule">
+        <button type="button" class="menubar__button" @click="commands.horizontal_rule">
           <i class="fas fa-ruler-horizontal"></i>
         </button>
 
