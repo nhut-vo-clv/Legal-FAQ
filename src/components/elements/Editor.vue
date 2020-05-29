@@ -59,30 +59,18 @@
         <button
           type="button"
           class="menubar__button"
-          :class="{ 'is-active': isActive.heading({ level: 1 }) }"
-          @click="commands.heading({ level: 1 })"
+          :class="{ 'is-active': isActive.heading({ level: 3 }) }"
+          @click="commands.heading({ level: 3 })"
         >
           <i class="fas fa-heading"></i>
         </button>
-        <!-- 
-        <button
-          class="menubar__button"
-          :class="{ 'is-active': isActive.heading({ level: 2 }) }"
-          @click="commands.heading({ level: 2 })"
-        >H2</button>
-
-        <button
-          class="menubar__button"
-          :class="{ 'is-active': isActive.heading({ level: 3 }) }"
-          @click="commands.heading({ level: 3 })"
-        >H3</button>
 
         <button
           class="menubar__button"
           :class="{ 'is-active': isActive.bullet_list() }"
           @click="commands.bullet_list"
         >
-          <icon name="ul" />
+          <i class="fas fa-list-ul"></i>
         </button>
 
         <button
@@ -90,7 +78,7 @@
           :class="{ 'is-active': isActive.ordered_list() }"
           @click="commands.ordered_list"
         >
-          <icon name="ol" />
+          <i class="fas fa-list-ol"></i>
         </button>
 
         <button
@@ -98,7 +86,7 @@
           :class="{ 'is-active': isActive.blockquote() }"
           @click="commands.blockquote"
         >
-          <icon name="quote" />
+          <i class="fas fa-quote-right"></i>
         </button>
 
         <button
@@ -106,12 +94,12 @@
           :class="{ 'is-active': isActive.code_block() }"
           @click="commands.code_block"
         >
-          <icon name="code" />
+          <i class="fas fa-code"></i>
         </button>
 
         <button class="menubar__button" @click="commands.horizontal_rule">
-          <icon name="hr" />
-        </button>-->
+          <i class="fas fa-ruler-horizontal"></i>
+        </button>
 
         <button type="button" class="menubar__button" @click="commands.undo">
           <i class="fas fa-undo"></i>
@@ -237,11 +225,7 @@ html {
   font-family: "Inter";
   font-size: 18px;
   color: $color-black;
-  line-height: 1.5;
-}
-
-body {
-  margin: 0;
+  // line-height: 1.5;
 }
 
 a {
@@ -300,8 +284,12 @@ h3 {
 }
 
 .menubar {
-  margin-bottom: 1rem;
+  // margin-bottom: 1rem;
   transition: visibility 0.2s 0.4s, opacity 0.2s 0.4s;
+  border: 1px solid #dcdfe6;
+  padding-left: 5px;
+
+  // border: 1px solid #bd0f72;
 
   &.is-hidden {
     visibility: hidden;
@@ -341,11 +329,30 @@ h3 {
 
 .editor {
   position: relative;
+  // border: 0 1px solid #dcdfe6;
+  // border: 1px solid #bd0f72;
+  &__content:focus-within {
+    border-color: #bd0f72;
+  }
 
   &__content {
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
+
+    color: #606266;
+    // border: 1px solid #dcdfe6;
+    border-right: 1px solid #dcdfe6;
+    border-bottom: 1px solid #dcdfe6;
+    border-left: 1px solid #dcdfe6;
+    line-height: 0.5;
+    padding: 15px 15px 0px 15px;
+    :first-child {
+      outline: none;
+
+      // -webkit-transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+      // transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
 
     * {
       caret-color: currentColor;
@@ -462,60 +469,6 @@ h3 {
       cursor: ew-resize;
       cursor: col-resize;
     }
-  }
-}
-
-.menububble {
-  position: absolute;
-  display: flex;
-  z-index: 20;
-  background: $color-black;
-  border-radius: 5px;
-  padding: 0.3rem;
-  margin-bottom: 0.5rem;
-  transform: translateX(-50%);
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.2s, visibility 0.2s;
-
-  &.is-active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  &__button {
-    display: inline-flex;
-    background: transparent;
-    border: 0;
-    color: $color-white;
-    padding: 0.2rem 0.5rem;
-    margin-right: 0.2rem;
-    border-radius: 3px;
-    cursor: pointer;
-
-    &:last-child {
-      margin-right: 0;
-    }
-
-    &:hover {
-      background-color: rgba($color-white, 0.1);
-    }
-
-    &.is-active {
-      background-color: rgba($color-white, 0.2);
-    }
-  }
-
-  &__form {
-    display: flex;
-    align-items: center;
-  }
-
-  &__input {
-    font: inherit;
-    border: none;
-    background: transparent;
-    color: $color-white;
   }
 }
 </style>
