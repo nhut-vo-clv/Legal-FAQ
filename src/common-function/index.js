@@ -52,10 +52,10 @@ export const commonFunction = {
                 firebase.firestore()
                     .collection(collectionName)
                     .add(obj)
-                    .then(async () => {
+                    .then(async (docRef) => {
                         await this.writeLogSuccessfully(formData);
                         this.alertSuccess();
-                        resolve(true);
+                        resolve(docRef.id);
                     }).catch(error => {
                         this.alertError(error);
                         reject(false);
@@ -96,11 +96,10 @@ export const commonFunction = {
             const config = {
                 headers: { Authorization: 'Bearer ' + userAccessToken }
             };
-            
+
             return new Promise((resolve, reject) => {
-                axios.get('https://www.googleapis.com/admin/directory/v1/users/' + 'nhut.vo@one-line.com' + '?projection=full&viewType=domain_public', config)
+                axios.get('https://www.googleapis.com/admin/directory/v1/users/' + userEmail + '?projection=full&viewType=domain_public', config)
                     .then(function (response) {
-                        console.log(response.data);
                         resolve(response.data);
                     })
                     .catch(error => {
@@ -115,7 +114,7 @@ export const commonFunction = {
     },
     getUserAccessToken() {
         try {
-            let userEmail = this.getUserEmailLogin(); 
+            let userEmail = this.getUserEmailLogin();
             return new Promise((resolve, reject) => {
                 firebase.firestore()
                     .collection(store.getters.getUserInfoCollection)
@@ -124,7 +123,7 @@ export const commonFunction = {
                     .then(snapshot => {
                         if (snapshot.docs.length > 0) {
                             resolve(snapshot.docs[0].data().access_token);
-                        }else{
+                        } else {
                             reject(false);
                         }
                     }).catch(error => {
@@ -297,5 +296,28 @@ export const commonFunction = {
         let regex = /((\w*).(\.|\s))+(.)/g;
         let avaCharacter = regex.exec(name);
         return avaCharacter[2].charAt(0) + avaCharacter[4].charAt(0);
-    }
+    },
+    padZero(data, size, z) {
+        z = z || '0';
+        data = data + '';
+        return data.length >= size ? data : new Array(size - data.length + 1).join(z) + data;
+    },
+    getRunningNumber() {
+        return new Promise((resolve, reject) => {
+            firebase.firestore()
+                .collection(store.getters.getRequestCollection)
+                .orderBy("id", "desc")
+                .limit(1)
+                .get()
+                .then(snapshot => {
+                    if (snapshot.docs.length > 0) {
+                        var val = snapshot.docs[0].data().id.split('-');
+                        var newNum = this.padZero((parseInt(val[1]) + 1), 5);
+                        resolve(val[0] + '-' + newNum);
+                    } else {
+                        reject('RQ-00001');
+                    }
+                });
+        });
+    },
 }

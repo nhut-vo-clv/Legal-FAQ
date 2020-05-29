@@ -20,7 +20,13 @@ export const store = new Vuex.Store({
       setting: 'setting'
     },
     fieldsQuery: [],
-    filterQuery: ''
+    filterQuery: '',
+    requestStatus: {
+      new: 'Processing to Submitted',
+      answered: 'Answered',
+      resolved: 'Resolved',
+      updated: 'Updated'
+    }
   },
   mutations: {
     SET_FIELDS_QUERY(state, arrField) {
@@ -63,6 +69,21 @@ export const store = new Vuex.Store({
     },
     getDomain: () => {
       return 'one-line.com';
+    },
+    getAPIKey: state => {
+      return state.apiKey;
+    },
+    getRequestStatusNew: state => {
+      return state.requestStatus.new;
+    },
+    getRequestStatusAnswered: state => {
+      return state.requestStatus.answered;
+    },
+    getRequestStatusResolved: state => {
+      return state.requestStatus.resolved;
+    },
+    getRequestStatusUpdated: state => {
+      return state.requestStatus.updated;
     }
   }
 });

@@ -1,6 +1,6 @@
 <template>
   <div class="body-wrap">
-    <el-container>
+    <el-container v-loading.fullscreen.lock="fullscreenLoading">
       <el-main>
         <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <div class="box-header-actions">
@@ -114,7 +114,7 @@
               :label="rules.request_date[0].fieldLabel"
               :prop="rules.request_date[0].prop"
             >
-              <el-input v-model="form.request_date"></el-input>
+              <el-input v-model="form.request_date" disabled></el-input>
             </el-form-item>
             <hr />
             <div class="header-title center-item">Details of Request</div>
@@ -134,6 +134,13 @@
                 <el-option label="Zone two" value="beijing"></el-option>
               </el-select>
             </el-form-item>
+            <div>
+              <el-button type="primary" round @click="onApiLoad">Drive</el-button>
+              <el-table style="width: 100%">
+                <el-table-column prop="file_name" label="File name" width="180"></el-table-column>
+                <el-table-column prop="upload_date" label="Upload date" width="180"></el-table-column>
+              </el-table>
+            </div>
             <hr />
             <div class="header-title center-item">Comments</div>
             <el-form-item :label="rules.risk_to[0].fieldLabel" :prop="rules.risk_to[0].prop">
@@ -169,8 +176,8 @@
                 >
                   <el-card>
                     <p>From: {{ comment.isLegalTeam ? 'Legal Team' : 'Requester' }}</p>
-                    <p>Title & Section: {{ comment.title_section }}</p>
-                    Comment: <div v-html="comment.value"></div>
+                    <p>Title & Section: {{ comment.title_section }}</p>Comment:
+                    <div v-html="comment.value"></div>
                   </el-card>
                 </el-timeline-item>
               </el-timeline>
@@ -354,7 +361,10 @@ export default {
       inputCopyToVisible: false,
       inputCopyToValue: "",
       isNewRecord: "isNew",
-      commentContent: ''
+      commentContent: "",
+      fullscreenLoading: true,
+      pickerApiLoaded: false,
+      developerKey: this.$store.state.apiKey
     };
   },
   methods: {
@@ -383,7 +393,6 @@ export default {
       });
     },
     async loadRegion() {
-      this.fullscreenLoading = true;
       this.listRegion = [];
       let arrQuery = [
         {
@@ -402,24 +411,21 @@ export default {
       arrData.forEach(doc => {
         this.listRegion.push(doc.data());
       });
-
-      this.fullscreenLoading = false;
     },
     async loadRequest() {
-      this.fullscreenLoading = true;
       this.form = await this.$commonFunction.getRecord(
         this.getRequestCollection,
         this.paramDocId
       );
 
       this.tagCopyTo = this.form.copy_to;
+      this.form.request_date = this.$commonFunction.formatDate(
+        this.form.created.toDate()
+      );
 
       await this.loadComment(this.paramDocId);
-
-      this.fullscreenLoading = false;
     },
     async loadComment(requestId) {
-      this.fullscreenLoading = true;
       this.listComment = [];
       let arrQuery = [
         {
@@ -443,35 +449,69 @@ export default {
       arrData.forEach(doc => {
         this.listComment.push(doc.data());
       });
+    },
+    async loadUserInfo() {
+      let user = await this.$commonFunction.getGSuiteUserInfo();
 
+      this.form.requester_name = user.name.fullName;
+      this.form.commenter_name = user.name.fullName;
+      this.form.email = user.primaryEmail;
+
+      if (user.organizations && user.organizations[0].title) {
+        this.form.requester_title = user.organizations[0].title;
+      }
+
+      if (user.organizations && user.organizations[0].department) {
+        this.form.requester_section = user.organizations[0].department;
+      }
+
+      this.form.commenter_title =
+        this.form.requester_title === ""
+          ? this.form.requester_section
+          : this.form.requester_section === ""
+          ? this.form.requester_title
+          : this.form.requester_title + " & " + this.form.requester_section;
+
+      if (
+        user.customSchemas &&
+        user.customSchemas.ONE &&
+        user.customSchemas.ONE.Country
+      ) {
+        this.form.requester_country = user.customSchemas.ONE.Country;
+      }
       this.fullscreenLoading = false;
     },
     categoryOnChange() {},
     onSubmit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          let insertFlag = false;
+          let insertDocId = "";
           this.form.copy_to = this.tagCopyTo;
+
           if (this.paramDocId !== this.isNewRecord) {
+            // Update request
             await this.$commonFunction.updateRecord(
               this.getRequestCollection,
               this.paramDocId,
               this.form
             );
           } else {
+            // Insert new request
+            this.form.id = await this.$commonFunction.getRunningNumber();
             this.form.active = true;
-            this.form.status = "Processing to Submitted";
+            this.form.status = this.getRequestStatusNew;
             this.form.publish = false;
-            await this.$commonFunction.insertRecord(
+            insertDocId = await this.$commonFunction.insertRecord(
               this.getRequestCollection,
               this.form
             );
+            insertFlag = true;
           }
 
-          if(this.commentContent){
+          if (this.commentContent) {
             let objComment = {};
             objComment.active = true;
-            objComment.commenter_name = 'Nam Tran';
-            objComment.commenter_title = 'DOU';
             objComment.isLegalTeam = true;
             objComment.request_id = this.paramDocId;
             objComment.value = this.commentContent;
@@ -482,6 +522,14 @@ export default {
             );
 
             await this.loadComment(this.paramDocId);
+          }
+
+          if (insertFlag) {
+            this.$router.replace({
+              name: "MakeRequest",
+              params: { id: insertDocId }
+            });
+            this.paramDocId = insertDocId;
           }
         } else {
           return false;
@@ -537,25 +585,105 @@ export default {
     },
     getEditorContent(content) {
       this.commentContent = content;
+    },
+    onApiLoad() {
+      gapi.load("client", () => {
+        gapi.client.setToken({access_token: this.userToken});
+        gapi.client.load("drive", "v3", () => {
+          var file = gapi.client.drive.files.get({
+            fileId: "1L_Ym1gKwPzGuBWGOW_h2F2iXieuHtZTe"
+          });
+          file.execute(function(resp) {
+            console.log(resp);
+          });
+        });
+      });
+      gapi.load("picker", this.onPickerApiLoad);
+    },
+    onPickerApiLoad() {
+      this.pickerApiLoaded = true;
+      this.createPicker();
+    },
+    createPicker() {
+      if (this.pickerApiLoaded && this.userToken) {
+        var view = new google.picker.View(google.picker.ViewId.DOCS);
+        var picker = new google.picker.PickerBuilder()
+          .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+          .addView(view)
+          .addView(new google.picker.DocsUploadView())
+          .setOAuthToken(this.userToken)
+          .setDeveloperKey(this.developerKey)
+          .setCallback(this.pickerCallback)
+          .build();
+        picker.setVisible(true);
+      }
+    },
+    async pickerCallback(data) {
+      let ownerUpload = "";
+      let folderNameTemp = "";
+      let folderDrive = null;
+
+      console.log(data);
+
+      /*if (data.action == google.picker.Action.PICKED) {
+        for (var i in data.docs) {
+          let date = new Date();
+          if (this.paramDocId !== this.isNewRecord) {
+            
+          }else{
+            folderNameTemp = 'legal-app-temp' + (date.getFullYear().toString()
+                                                + (date.getMonth() + 1).toString()
+                                                + date.getDate().toString()
+                                                + date.getHours().toString()
+                                                + date.getMinutes().toString()
+                                                + date.getSeconds().toString()
+                                                + date.getMilliseconds().toString());
+            //folderDrive = 
+          }
+        }
+      }*/
     }
   },
-  async created() {
-    this.form.copy_to = [];
+  created() {
+    delete this.form.comment;
     this.loadCategory();
     this.loadRegion();
+    this.loadUserInfo();
 
     if (this.paramDocId !== this.isNewRecord) {
       this.loadRequest();
     }
-    //await this.$commonFunction.getGSuiteUserInfo();
   },
   computed: {
     ...mapGetters([
       "getCategoryMasterDataCollection",
       "getRequestCollection",
       "getRegionCollection",
-      "getCommentCollection"
+      "getCommentCollection",
+      "getRequestStatusNew",
+      "getAPIKey"
     ])
+  },
+  async mounted() {
+    /*var cred = firebase.auth.GoogleAuthProvider.credential(null, 'ya29.a0AfH6SMD_QfTWIx3dtBb2gTpBDUedATGkGhG_wJe7dspWcEjQMf-H_Zsq7Y82W9VquIfV_PoiXpIB711GdxU64d362U6WQqTaiW5RZWwg9S98K5lBYcVrHMT8ApWOHgMWMOfpP7dg1VI1EMp7kfrqADGDMqPM_SP3anXt');
+    firebase.auth().signInWithCredential(cred).then(function(user) {
+      console.log(user);
+    });
+
+    console.log(cred);*/
+
+    this.userToken = await this.$commonFunction.getUserAccessToken();
+
+    /**
+     Load Google Api Lib (S)
+    **/
+    let gAPI = document.createElement("script");
+    gAPI.setAttribute("type", "text/javascript");
+    gAPI.setAttribute("src", "https://apis.google.com/js/api.js");
+    document.head.appendChild(gAPI);
+    /**
+     Load Google Api Lib (E)
+    **/
   }
 };
 </script>

@@ -8,10 +8,10 @@
             <router-link to="/home">HOME</router-link>
           </li>
           <li>
-            <router-link to="/make-request/isNew">Make Request</router-link>
+            <router-link to="/make-request/isNew">MAKE REQUEST</router-link>
           </li>
           <li>
-            <router-link to="/inquiry">Inquiry</router-link>
+            <router-link to="/inquiry">INQUIRY</router-link>
           </li>
           <li>
             <router-link to="/setting">SETTING</router-link>
