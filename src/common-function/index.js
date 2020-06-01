@@ -39,7 +39,7 @@ export const commonFunction = {
                     if (snapshot.exists) {
                         resolve(snapshot.data());
                     } else {
-                        reject("No such document!");
+                        reject(false);
                     }
                 });
         });
@@ -316,6 +316,18 @@ export const commonFunction = {
                         resolve(val[0] + '-' + newNum);
                     } else {
                         reject('RQ-00001');
+                    }
+                });
+        });
+    },
+    getOwnerUpload() {
+        return new Promise((resolve, reject) => {
+            this.getRecord(store.getters.getCommonCollection, store.getters.getSettingDocument)
+                .then(data => {
+                    if (data) {
+                        resolve(data.upload_email);
+                    } else {
+                        reject('');
                     }
                 });
         });

@@ -14,7 +14,8 @@ export const store = new Vuex.Store({
       userInfo: 'user_info',
       categoryMasterData: 'category_master_data',
       request: 'request',
-      comment: 'comment'
+      comment: 'comment',
+      upload: 'upload'
     },
     documents: {
       setting: 'setting'
@@ -57,6 +58,9 @@ export const store = new Vuex.Store({
     },
     getCommentCollection: state => {
       return state.collections.comment;
+    },
+    getUploadCollection: state => {
+      return state.collections.upload;
     },
     getSettingDocument: state => {
       return state.documents.setting;

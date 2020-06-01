@@ -136,9 +136,8 @@
             </el-form-item>
             <div>
               <el-button type="primary" round @click="onApiLoad">Drive</el-button>
-              <el-table style="width: 100%">
+              <el-table :data="listFileUpload" style="width: 100%">
                 <el-table-column prop="file_name" label="File name" width="180"></el-table-column>
-                <el-table-column prop="upload_date" label="Upload date" width="180"></el-table-column>
               </el-table>
             </div>
             <hr />
@@ -364,7 +363,8 @@ export default {
       commentContent: "",
       fullscreenLoading: true,
       pickerApiLoaded: false,
-      developerKey: this.$store.state.apiKey
+      driveFolder: "",
+      listFileUpload: []
     };
   },
   methods: {
@@ -422,6 +422,8 @@ export default {
       this.form.request_date = this.$commonFunction.formatDate(
         this.form.created.toDate()
       );
+
+      this.driveFolder = this.form.upload_folder_id;
 
       await this.loadComment(this.paramDocId);
     },
@@ -488,6 +490,7 @@ export default {
           let insertFlag = false;
           let insertDocId = "";
           this.form.copy_to = this.tagCopyTo;
+          this.form.upload_folder_id = this.driveFolder;
 
           if (this.paramDocId !== this.isNewRecord) {
             // Update request
@@ -502,11 +505,20 @@ export default {
             this.form.active = true;
             this.form.status = this.getRequestStatusNew;
             this.form.publish = false;
+
             insertDocId = await this.$commonFunction.insertRecord(
               this.getRequestCollection,
               this.form
             );
             insertFlag = true;
+          }
+
+          if (this.driveFolder) {
+            let folderName = await this.getFolderName(this.driveFolder);
+
+            if (folderName !== this.form.id) {
+              await this.updateFolderName(this.driveFolder, this.form.id);
+            }
           }
 
           if (this.commentContent) {
@@ -588,15 +600,7 @@ export default {
     },
     onApiLoad() {
       gapi.load("client", () => {
-        gapi.client.setToken({access_token: this.userToken});
-        gapi.client.load("drive", "v3", () => {
-          var file = gapi.client.drive.files.get({
-            fileId: "1L_Ym1gKwPzGuBWGOW_h2F2iXieuHtZTe"
-          });
-          file.execute(function(resp) {
-            console.log(resp);
-          });
-        });
+        gapi.client.setToken({ access_token: this.userToken });
       });
       gapi.load("picker", this.onPickerApiLoad);
     },
@@ -612,36 +616,203 @@ export default {
           .addView(view)
           .addView(new google.picker.DocsUploadView())
           .setOAuthToken(this.userToken)
-          .setDeveloperKey(this.developerKey)
+          .setDeveloperKey(this.getAPIKey)
           .setCallback(this.pickerCallback)
           .build();
         picker.setVisible(true);
       }
     },
     async pickerCallback(data) {
+      let date = new Date();
       let ownerUpload = "";
-      let folderNameTemp = "";
-      let folderDrive = null;
+      let folderNameTemp =
+        "legal-app-temp-" +
+        (date.getFullYear().toString() +
+          (date.getMonth() + 1).toString() +
+          date.getDate().toString() +
+          date.getHours().toString() +
+          date.getMinutes().toString() +
+          date.getSeconds().toString() +
+          date.getMilliseconds().toString());
+      let emailUpload = await this.$commonFunction.getOwnerUpload();
+      let domain = this.getDomain;
 
-      console.log(data);
-
-      /*if (data.action == google.picker.Action.PICKED) {
-        for (var i in data.docs) {
-          let date = new Date();
-          if (this.paramDocId !== this.isNewRecord) {
-            
-          }else{
-            folderNameTemp = 'legal-app-temp' + (date.getFullYear().toString()
-                                                + (date.getMonth() + 1).toString()
-                                                + date.getDate().toString()
-                                                + date.getHours().toString()
-                                                + date.getMinutes().toString()
-                                                + date.getSeconds().toString()
-                                                + date.getMilliseconds().toString());
-            //folderDrive = 
+      if (data.action == google.picker.Action.PICKED) {
+        if (this.paramDocId !== this.isNewRecord) {
+          if (!this.driveFolder) {
+            this.driveFolder = await this.createDriveFolder(folderNameTemp);
           }
+        } else {
+          this.driveFolder = await this.createDriveFolder(folderNameTemp);
         }
-      }*/
+        for (var i in data.docs) {
+          let file = data.docs[i];
+          let fileUrl = await this.moveFileToFolder(this.driveFolder, file.id);
+
+          await this.setPermissionFileUpload(file.id, emailUpload, domain);
+
+          let objUpload = {
+            file_id: file.id,
+            file_name: file.name,
+            folder_id: this.driveFolder,
+            active: true,
+            file_url: fileUrl
+          };
+          await this.$commonFunction.insertRecord(
+            this.getUploadCollection,
+            objUpload
+          );
+        }
+        this.loadFileUpload();
+      }
+    },
+    setPermissionFileUpload(fileId, emailUpload, domainVal, listEmailEditor) {
+      return new Promise((resolve, reject) => {
+        gapi.client.load("drive", "v3", () => {
+          let userPermissionReq = gapi.client.drive.permissions.create({
+            resource: {
+              type: "user",
+              role: "owner",
+              emailAddress: emailUpload
+            },
+            fileId: fileId,
+            transferOwnership: true
+          });
+
+          let domainPermissionReq = gapi.client.drive.permissions.create({
+            resource: {
+              type: "domain",
+              role: "writer",
+              domain: domainVal
+            },
+            fileId: fileId
+          });
+
+          userPermissionReq.execute();
+
+          domainPermissionReq.execute();
+
+          for (let i in listEmailEditor) {
+            let editorPermissionReq = gapi.client.drive.permissions.create({
+              resource: {
+                type: "user",
+                role: "writer",
+                emailAddress: listEmailEditor[i]
+              },
+              fileId: fileId
+            });
+
+            editorPermissionReq.execute();
+          }
+
+          resolve(true);
+        });
+      });
+    },
+    createDriveFolder(folderName) {
+      return new Promise((resolve, reject) => {
+        gapi.client.load("drive", "v3", () => {
+          var fileMetadata = {
+            name: folderName,
+            mimeType: "application/vnd.google-apps.folder"
+          };
+
+          let folderReq = gapi.client.drive.files.create({
+            resource: fileMetadata,
+            fields: "id"
+          });
+
+          folderReq.execute(resp => {
+            resolve(resp.id);
+          });
+        });
+      });
+    },
+    moveFileToFolder(folderId, fileId) {
+      return new Promise((resolve, reject) => {
+        gapi.client.load("drive", "v3", () => {
+          let fileReq = gapi.client.drive.files.update({
+            fileId: fileId,
+            addParents: folderId,
+            fields: "webViewLink"
+          });
+
+          fileReq.execute(resp => {
+            resolve(resp.webViewLink);
+          });
+        });
+      });
+    },
+    updateFolderName(folderId, folderName) {
+      return new Promise((resolve, reject) => {
+        gapi.client.load("drive", "v3", () => {
+          var fileMetadata = {
+            name: folderName,
+            mimeType: "application/vnd.google-apps.folder"
+          };
+
+          let folderReq = gapi.client.drive.files.update({
+            resource: fileMetadata,
+            fileId: folderId
+          });
+
+          folderReq.execute(() => {
+            resolve(true);
+          });
+        });
+      });
+    },
+    getFolderName(folderId) {
+      return new Promise((resolve, reject) => {
+        gapi.client.load("drive", "v3", () => {
+          let folderReq = gapi.client.drive.files.get({
+            fileId: folderId
+          });
+
+          folderReq.execute(resp => {
+            resolve(resp.name);
+          });
+        });
+      });
+    },
+    getFileUrl(fileId) {
+      return new Promise((resolve, reject) => {
+        gapi.client.load("drive", "v3", () => {
+          let fileReq = gapi.client.drive.files.get({
+            fileId: fileId,
+            fields: "webViewLink"
+          });
+
+          fileReq.execute(resp => {
+            resolve(resp.webViewLink);
+          });
+        });
+      });
+    },
+    async loadFileUpload() {
+      this.listFileUpload = [];
+      let arrQuery = [
+        {
+          field: "active",
+          oper: "==",
+          value: "true",
+          type: "boolean"
+        },
+        {
+          field: "folder_id",
+          oper: "==",
+          value: this.driveFolder
+        }
+      ];
+
+      let arrData = await this.$commonFunction.getList(
+        this.getUploadCollection,
+        arrQuery
+      );
+
+      arrData.forEach(doc => {
+        this.listFileUpload.push(doc.data());
+      });
     }
   },
   created() {
@@ -652,6 +823,7 @@ export default {
 
     if (this.paramDocId !== this.isNewRecord) {
       this.loadRequest();
+      this.loadFileUpload();
     }
   },
   computed: {
@@ -660,18 +832,13 @@ export default {
       "getRequestCollection",
       "getRegionCollection",
       "getCommentCollection",
+      "getUploadCollection",
       "getRequestStatusNew",
+      "getDomain",
       "getAPIKey"
     ])
   },
   async mounted() {
-    /*var cred = firebase.auth.GoogleAuthProvider.credential(null, 'ya29.a0AfH6SMD_QfTWIx3dtBb2gTpBDUedATGkGhG_wJe7dspWcEjQMf-H_Zsq7Y82W9VquIfV_PoiXpIB711GdxU64d362U6WQqTaiW5RZWwg9S98K5lBYcVrHMT8ApWOHgMWMOfpP7dg1VI1EMp7kfrqADGDMqPM_SP3anXt');
-    firebase.auth().signInWithCredential(cred).then(function(user) {
-      console.log(user);
-    });
-
-    console.log(cred);*/
-
     this.userToken = await this.$commonFunction.getUserAccessToken();
 
     /**
