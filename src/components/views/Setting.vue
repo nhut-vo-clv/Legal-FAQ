@@ -94,7 +94,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-import Editor from "../elements/Editor";
 
 let arrProp = {
   super_email: [
@@ -117,9 +116,6 @@ let arrProp = {
 
 export default {
   name: "Setting",
-  components: {
-    Editor
-  },
   data() {
     return {
       form: this.$commonFunction.getFormPorp(arrProp),
