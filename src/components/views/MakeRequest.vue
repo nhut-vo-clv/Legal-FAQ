@@ -17,7 +17,7 @@
             ref="formMakeRequest"
             :model="form"
             :rules="rules"
-            label-width="120px"
+            label-width="150px"
             size="small"
           >
             <el-form-item :label="rules.id[0].fieldLabel" :prop="rules.id[0].prop">
@@ -165,7 +165,8 @@
               ></el-input>
             </el-form-item>
             <el-form-item :label="rules.comment[0].fieldLabel" :prop="rules.comment[0].prop">
-              <editor v-on:editorContent="getEditorContent" v-model="commentContent"></editor>
+              <!-- <editor v-on:editorContent="getEditorContent" v-model="commentContent"></editor> -->
+              <editor-component v-on:editorContent="getEditorContent" v-model="commentContent"></editor-component>
             </el-form-item>
             <el-form-item
               :label="rules.commenter_name[0].fieldLabel"
@@ -208,7 +209,9 @@
 
 <script>
 import { mapGetters } from "vuex";
-import Editor from "../elements/Editor";
+// import Editor from "../elements/Editor";
+import EditorComponent from "../elements/quill-editor";
+
 
 let arrProp = {
   id: [
@@ -361,7 +364,8 @@ let arrProp = {
 export default {
   name: "MakeRequest",
   components: {
-    Editor
+    // Editor,
+    EditorComponent
   },
   data() {
     return {

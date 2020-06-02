@@ -2,6 +2,7 @@ import ElementUI from 'element-ui';
 import { store } from '../store';
 import firebase from 'firebase';
 import axios from 'axios';
+import { IgnorePlugin } from 'webpack';
 
 export const commonFunction = {
     getList(collectionName, arrQuery) {

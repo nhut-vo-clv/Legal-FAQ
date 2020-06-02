@@ -65,12 +65,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-import Editor from "../elements/Editor";
+// import Editor from "../elements/Editor";
 
 export default {
   name: "Setting",
   components: {
-    Editor
+    // Editor
   },
   data() {
     return {
