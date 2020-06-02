@@ -4,20 +4,26 @@
       <el-main>
         <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <div class="box-header-actions">
-            <div class="box-title">
+            <div class="box-title" v-if="isNewRecord == paramDocId">
               <div>MAKE REQUEST</div>
+            </div>
+            <div class="box-details" v-if="isNewRecord != paramDocId">
+              <el-page-header @back="goBack" :content="form.id"></el-page-header>
             </div>
             <div class="box-buttons">
               <el-button size="small" type="primary" @click="onSubmit('formMakeRequest')">SUBMIT</el-button>
+              <el-button v-if="isNewRecord != paramDocId" size="small" @click="goBack">CANCEL</el-button>
             </div>
           </div>
+
+
           <el-divider>GENERAL INFO</el-divider>
           <el-form
             label-position="right"
             ref="formMakeRequest"
             :model="form"
             :rules="rules"
-            label-width="150px"
+            label-width="140px"
             size="small"
           >
             <el-form-item :label="rules.id[0].fieldLabel" :prop="rules.id[0].prop">
@@ -968,6 +974,9 @@ export default {
       } else if (idx == 5) {
         return item.value;
       }
+    },
+    goBack() {
+      this.$router.go(-1);
     }
   },
   created() {

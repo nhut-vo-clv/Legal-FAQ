@@ -9,7 +9,17 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <div class="header-title center-item">Setting</div>
+
+          <div class="box-header-actions">
+            <div class="box-title">
+              <div>ADMIN SETTING</div>
+            </div>
+            <div class="box-buttons">
+              <el-button size="small" type="primary" @click="onSave('formSetting')">SAVE</el-button>
+              <el-button size="small" @click="goBack">CANCEL</el-button>
+            </div>
+          </div>
+        
             <el-form
               ref="formSetting"
               :model="form"
@@ -29,9 +39,7 @@
               >
                 <el-input v-model="form.upload_email"></el-input>
               </el-form-item>
-              <div class="center-item">
-                <el-button type="primary" @click="onSave('formSetting')">Save</el-button>
-              </div>
+           
             </el-form>
             <hr />
           </el-col>
@@ -43,8 +51,17 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <div class="header-title center-item">Regions</div>
-            <el-button type="primary" @click="newRegion">New</el-button>
+
+
+          <div class="box-header-actions">
+            <div class="box-title">
+              <div>REGIONS SETTING</div>
+            </div>
+            <div class="box-buttons">
+              <el-button size="small" type="primary" @click="newRegion">NEW REGION</el-button>
+            </div>
+          </div>
+
           </el-col>
           <el-table :data="regionData" stripe style="width: 100%">
             <el-table-column label="Name" min-width="150px" prop="name" sortable>

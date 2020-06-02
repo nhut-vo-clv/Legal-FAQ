@@ -9,14 +9,15 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <div class="header-title center-item">Inquiry</div>
+          <el-divider> <div class="header-title center-item">INQUIRY LIST</div></el-divider>
+           
           </el-col>
           <el-table :data="listInquiry" border style="width: 100%">
             <el-table-column type="index" width="30"></el-table-column>
-            <el-table-column label="ID" width="150px" prop="id" sortable></el-table-column>
+            <el-table-column label="ID" width="100px" prop="id" sortable></el-table-column>
             <el-table-column
               label="Category"
-              width="150px"
+              width="120px"
               prop="category"
               :filters="listCategory"
               :filter-method="filterHandler"
@@ -46,15 +47,15 @@
               sortable
               v-if="isLarge"
             ></el-table-column>
-            <el-table-column label="Publish" width="75" prop="publish" sortable>
+            <el-table-column label="Publish" width="100" align="center" class-name="checkbox-in-cell" prop="publish" sortable>
               <template class="cell-publish" #default="{row}">
                 <el-checkbox v-model="row.publish"></el-checkbox>
               </template>
             </el-table-column>
-            <el-table-column width="30" align="right">
+            <el-table-column width="40" align="right">
               <template #default="{row}">
                 <router-link :to="'make-request/' + row.documentId">
-                  <i class="el-icon-view"></i>
+                  <i class="el-icon-view icon-in-cell"></i>
                 </router-link>
               </template>
             </el-table-column>

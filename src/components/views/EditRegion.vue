@@ -10,11 +10,14 @@
             :sm="{span: 16, offset: 4}"
           >
             <div class="box-header-actions">
-              <div class="box-details">
+              <div class="box-title" v-if="isNewRecord == paramDocId">
+                <div>NEW REGION</div>
+              </div>
+              <div class="box-details" v-if="isNewRecord != paramDocId">
                 <el-page-header @back="goBack" content="EDIT REGION"></el-page-header>
               </div>
               <div class="box-buttons">
-                <el-button size="small" type="primary" @click="onSubmit('formRegion')">SAVE</el-button>
+                <el-button size="small" type="primary" @click="onSubmit('formRegion')">SUBMIT</el-button>
                 <el-button size="small" @click="goBack">CANCEL</el-button>
               </div>
             </div>
