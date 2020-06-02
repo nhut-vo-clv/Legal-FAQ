@@ -2,6 +2,7 @@ import ElementUI from 'element-ui';
 import { store } from '../store';
 import firebase from 'firebase';
 import axios from 'axios';
+import { IgnorePlugin } from 'webpack';
 
 export const commonFunction = {
     getList(collectionName, arrQuery) {
@@ -24,7 +25,7 @@ export const commonFunction = {
                     if (snapshot.size > 0) {
                         resolve(snapshot.docs);
                     } else {
-                        reject("No such document!");
+                        resolve([]);
                     }
                 });
         });
@@ -315,7 +316,7 @@ export const commonFunction = {
                         var newNum = this.padZero((parseInt(val[1]) + 1), 5);
                         resolve(val[0] + '-' + newNum);
                     } else {
-                        reject('RQ-00001');
+                        resolve('RQ-00001');
                     }
                 });
         });
@@ -327,9 +328,40 @@ export const commonFunction = {
                     if (data) {
                         resolve(data.upload_email);
                     } else {
-                        reject('');
+                        resolve('');
                     }
                 });
         });
     },
+    checkUserRole() {
+        return new Promise(async (resolve, reject) => {
+            let userLogin = this.getUserEmailLogin();
+            let arrQuery = [
+                {
+                  field: "active",
+                  oper: "==",
+                  value: "true",
+                  type: "boolean"
+                },
+                {
+                    field: "email",
+                    oper: "array-contains",
+                    value: userLogin
+                  }
+              ];
+        
+              let arrData = await this.getList(
+                store.getters.getRegionCollection,
+                arrQuery
+              );
+
+              if(arrData.length > 0){
+                  if(arrData.findIndex(x => x.name === "GHQ")){
+                    resolve({isAdmin: true, level: 'GHQ'});
+                  }else{
+                    resolve({isAdmin: true, level: 'RHQ'});
+                  }
+              }
+        });
+    }
 }

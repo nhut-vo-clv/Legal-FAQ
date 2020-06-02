@@ -137,7 +137,22 @@
             <div>
               <el-button type="primary" round @click="onApiLoad">Drive</el-button>
               <el-table :data="listFileUpload" style="width: 100%">
-                <el-table-column prop="file_name" label="File name" width="180"></el-table-column>
+                <el-table-column prop="file_name" label="File name" width="300">
+                  <template #default="{row}">
+                    <a :href="row.file_url" target="_blank">{{row['file_name']}}</a>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="created" label="Uploaded date" width="150">
+                  <template #default="{row}">{{$commonFunction.formatDate(row["created"].toDate())}}</template>
+                </el-table-column>
+                <el-table-column prop="created" label="Action" width="150">
+                  <template #default="{row}">
+                    <el-button
+                      @click="downloadFile(row['file_id'], row['file_name'], row['file_url'])"
+                    >Download</el-button>
+                    <el-button>Delete</el-button>
+                  </template>
+                </el-table-column>
               </el-table>
             </div>
             <hr />
@@ -368,7 +383,19 @@ export default {
       fullscreenLoading: true,
       pickerApiLoaded: false,
       driveFolder: "",
-      listFileUpload: []
+      listFileUpload: [],
+      masterDataFileType: {
+        docx: ["document", "docx", "odt", "rtf", "pdf", "txt", "zip", "epub"],
+        xlsx: ["spreadsheets", "xlsx", "ods", "pdf", "zip"],
+        pptx: ["presentation", "pptx", "odp", "pdf", "txt"],
+        drawings: ["drawings", "pdf", "jpg", "png", "svg"]
+      },
+      specialDriveDownloadFile: [
+        "document",
+        "spreadsheets",
+        "presentation",
+        "drawings"
+      ]
     };
   },
   methods: {
@@ -430,30 +457,34 @@ export default {
       this.driveFolder = this.form.upload_folder_id;
 
       await this.loadComment(this.paramDocId);
+      await this.loadFileUpload();
     },
-    async loadComment(requestId) {
-      this.listComment = [];
-      let arrQuery = [
-        {
-          field: "active",
-          oper: "==",
-          value: "true",
-          type: "boolean"
-        },
-        {
-          field: "request_id",
-          oper: "==",
-          value: requestId
-        }
-      ];
+    loadComment(requestId) {
+      return new Promise(async (resolve, reject) => {
+        this.listComment = [];
+        let arrQuery = [
+          {
+            field: "active",
+            oper: "==",
+            value: "true",
+            type: "boolean"
+          },
+          {
+            field: "request_id",
+            oper: "==",
+            value: requestId
+          }
+        ];
 
-      let arrData = await this.$commonFunction.getList(
-        this.getCommentCollection,
-        arrQuery
-      );
+        let arrData = await this.$commonFunction.getList(
+          this.getCommentCollection,
+          arrQuery
+        );
 
-      arrData.forEach(doc => {
-        this.listComment.push(doc.data());
+        arrData.forEach(doc => {
+          this.listComment.push(doc.data());
+        });
+        resolve(true);
       });
     },
     async loadUserInfo() {
@@ -793,29 +824,109 @@ export default {
         });
       });
     },
-    async loadFileUpload() {
-      this.listFileUpload = [];
-      let arrQuery = [
-        {
-          field: "active",
-          oper: "==",
-          value: "true",
-          type: "boolean"
-        },
-        {
-          field: "folder_id",
-          oper: "==",
-          value: this.driveFolder
+    loadFileUpload() {
+      return new Promise(async (resolve, reject) => {
+        this.listFileUpload = [];
+        let arrQuery = [
+          {
+            field: "active",
+            oper: "==",
+            value: "true",
+            type: "boolean"
+          },
+          {
+            field: "folder_id",
+            oper: "==",
+            value: this.driveFolder
+          }
+        ];
+
+        let arrData = await this.$commonFunction.getList(
+          this.getUploadCollection,
+          arrQuery
+        );
+
+        arrData.forEach(doc => {
+          this.listFileUpload.push(doc.data());
+        });
+        resolve(true);
+      });
+    },
+    downloadFile(fileId, fileName, fileUrl) {
+      let fileType = "";
+      // Get file type in last file name
+      var rex = /[^\.]+$/g;
+      var result;
+      while ((result = rex.exec(fileName)) !== null) {
+        fileType = result[0];
+      }
+
+      // Check file type is docx, xlsx, pptx
+      var listFormat = this.masterDataFileType[fileType];
+      if (listFormat) {
+        if (listFormat.length > 0) {
+          // Show popup donwload and format for file type
+          this.generateFormatDownload(fileId, listFormat);
         }
-      ];
+      } else {
+        // If file type is not docx, xlsx, pptx
+        var flag = false;
+        for (var j in this.specialDriveDownloadFile) {
+          var re = new RegExp(this.specialDriveDownloadFile[j], "g");
+          // Get file url and check in this url
+          var result1 = re.exec(fileUrl);
+          if (result1 !== null) {
+            var listKeyObj = Object.keys(this.masterDataFileType);
+            for (var k in listKeyObj) {
+              if (
+                this.specialDriveDownloadFile[j] ===
+                this.masterDataFileType[listKeyObj[k]][0]
+              ) {
+                // Show popup donwload and format for file type
+                this.generateFormatDownload(
+                  fileId,
+                  this.masterDataFileType[listKeyObj[k]]
+                );
+                flag = true;
+              }
+            }
+          }
+        }
 
-      let arrData = await this.$commonFunction.getList(
-        this.getUploadCollection,
-        arrQuery
-      );
-
-      arrData.forEach(doc => {
-        this.listFileUpload.push(doc.data());
+        // If not both
+        if (!flag) {
+          openProgress();
+          google.script.run
+            // If error
+            .withFailureHandler(function(error) {
+              displayTimedSnackBar("Error: " + error);
+            })
+            // If success
+            .withSuccessHandler(function(downloadUrl) {
+              // Get download link and download this file
+              window.open(downloadUrl, "_blank");
+              closeProgress();
+            })
+            .getDownloadUrl(fileId);
+        }
+      }
+    },
+    generateFormatDownload(fileId, listFormat) {
+      for (var i = 1; i < listFormat.length; i++) {
+        var child = document.createElement("div");
+        var htmlStr =
+          '<div style="width: 100%;text-align: center;" onclick="generateDownloadUrl(\'' +
+          fileId +
+          "','" +
+          listFormat[0] +
+          "','" +
+          listFormat[i] +
+          "')\">";
+        htmlStr += EXPLAIN_FILE_TYPE[listFormat[i]];
+        htmlStr += "</div>";
+      }
+      this.$alert(htmlStr, "Select format file", {
+        dangerouslyUseHTMLString: true
       });
     }
   },
@@ -827,7 +938,6 @@ export default {
 
     if (this.paramDocId !== this.isNewRecord) {
       this.loadRequest();
-      this.loadFileUpload();
     }
   },
   computed: {
