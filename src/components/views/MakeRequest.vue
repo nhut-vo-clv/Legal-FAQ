@@ -5,13 +5,13 @@
         <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <div class="box-header-actions">
             <div class="box-title">
-              <div>Make Request</div>
+              <div>MAKE REQUEST</div>
             </div>
             <div class="box-buttons">
-              <el-button size="small" type="primary" @click="onSubmit('formMakeRequest')">Submit</el-button>
+              <el-button size="small" type="primary" @click="onSubmit('formMakeRequest')">SUBMIT</el-button>
             </div>
           </div>
-          <div class="header-title center-item">General Info</div>
+          <el-divider>GENERAL INFO</el-divider>
           <el-form
             label-position="left"
             ref="formMakeRequest"
@@ -97,10 +97,14 @@
                 v-if="inputCopyToVisible"
               >
                 <template slot-scope="{item}">
-                  <div>{{ item.photo }}</div>
-                  <div>{{ item.fullName }}</div>
-                  <div>{{ item.userTitle }}</div>
-                  <div>{{ item.value }}</div>
+                  <div class="auto-completed-list">
+                    <el-avatar class="user-image" :size="35" :src="buildCopyToInfor(item, 1)"></el-avatar>
+                    <div class="user-info">
+                      <div class="user-name">{{ buildCopyToInfor(item, 3) }}</div>
+                      <div class="user-title">{{ buildCopyToInfor(item, 4) }}</div>
+                      <div class="user-value">{{ buildCopyToInfor(item, 5) }}</div>
+                    </div>
+                  </div>
                 </template>
               </el-autocomplete>
               <el-button
@@ -116,8 +120,8 @@
             >
               <el-input v-model="form.request_date" disabled></el-input>
             </el-form-item>
-            <hr />
-            <div class="header-title center-item">Details of Request</div>
+            <el-divider>DETAILS OF REQUEST</el-divider>
+
             <el-form-item :label="rules.summary[0].fieldLabel" :prop="rules.summary[0].prop">
               <el-input
                 type="textarea"
@@ -155,8 +159,8 @@
                 </el-table-column>
               </el-table>
             </div>
-            <hr />
-            <div class="header-title center-item">Comments</div>
+            <el-divider>COMMENTS</el-divider>
+
             <el-form-item :label="rules.risk_to[0].fieldLabel" :prop="rules.risk_to[0].prop">
               <el-input
                 type="textarea"
@@ -211,7 +215,6 @@
 import { mapGetters } from "vuex";
 // import Editor from "../elements/Editor";
 import EditorComponent from "../elements/quill-editor";
-
 
 let arrProp = {
   id: [
@@ -928,6 +931,20 @@ export default {
       this.$alert(htmlStr, "Select format file", {
         dangerouslyUseHTMLString: true
       });
+    },
+    buildCopyToInfor(item, idx) {
+      console.log(item);
+      if (idx == 1) {
+        if (item.photo) return item.photo;
+      } else if (idx == 2) {
+        return "avatar image";
+      } else if (idx == 3) {
+        return item.fullName;
+      } else if (idx == 4) {
+        return item.userTitle;
+      } else if (idx == 5) {
+        return item.value;
+      }
     }
   },
   created() {
@@ -1011,5 +1028,28 @@ export default {
 .box-details {
   transform: translateY(20%);
   padding-right: 20px;
+}
+
+.auto-completed-list {
+  display: flex;
+}
+.auto-completed-list .user-name {
+  display: flex;
+}
+
+.auto-completed-list .user-info {
+  line-height: 15px;
+}
+
+.user-title {
+  display: none;
+}
+
+.user-info {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden !important;
+  width: 70%;
+  padding: 3px;
 }
 </style>
