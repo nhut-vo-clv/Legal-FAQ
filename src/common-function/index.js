@@ -355,11 +355,13 @@ export const commonFunction = {
               );
 
               if(arrData.length > 0){
-                  if(arrData.findIndex(x => x.name === "GHQ")){
+                  if(arrData.findIndex(x => x.data().name === 'GHQ') !== -1){
                     resolve({isAdmin: true, level: 'GHQ'});
                   }else{
                     resolve({isAdmin: true, level: 'RHQ'});
                   }
+              }else{
+                resolve({isAdmin: false, level: ''});
               }
         });
     }

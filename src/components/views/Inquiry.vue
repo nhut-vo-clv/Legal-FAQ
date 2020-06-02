@@ -53,7 +53,9 @@
             </el-table-column>
             <el-table-column width="30" align="right">
               <template #default="{row}">
-                <router-link :to="'make-request/' + row.documentId"><i class="el-icon-view"></i></router-link>
+                <router-link :to="'make-request/' + row.documentId">
+                  <i class="el-icon-view"></i>
+                </router-link>
               </template>
             </el-table-column>
           </el-table>
@@ -77,7 +79,8 @@ export default {
       fullscreenLoading: false,
       isLarge: false,
       listInquiry: [],
-      listCategory: []
+      listCategory: [],
+      userRole: {}
     };
   },
   methods: {
@@ -114,40 +117,17 @@ export default {
       this.fullscreenLoading = true;
       this.listInquiry = [];
       let userLogin = this.$commonFunction.getUserEmailLogin();
-      let arrQueryCreate = [
+      let arrDataCreate = [];
+      let arrDataCopyTo = [];
+      let arrData = [];
+      let arrQuery = [
         {
           field: "active",
           oper: "==",
           value: "true",
           type: "boolean"
-        },
-        {
-          field: "created_by",
-          oper: "==",
-          value: userLogin
         }
       ];
-
-      let arrDataCreate = await this.$commonFunction.getList(
-        this.getRequestCollection,
-        arrQueryCreate
-      );
-
-      arrDataCreate.forEach(doc => {
-        let obj = {};
-        let data = doc.data();
-        obj.id = data.id;
-        obj.category = data.category;
-        obj.requester = data.requester_name + "\n" + data.created;
-        obj.request_to = data.request_to;
-        obj.inquiry = data.summary;
-        obj.risk_to = data.risk_to;
-        obj.status = data.status;
-        obj.updated = data.updated_by + "\n" + data.updated;
-        obj.publish = data.publish;
-        obj.documentId = doc.id;
-        this.listInquiry.push(obj);
-      });
 
       let arrQueryCopyTo = [
         {
@@ -155,20 +135,45 @@ export default {
           oper: "==",
           value: "true",
           type: "boolean"
-        },
-        {
-          field: "copy_to",
-          oper: "array-contains",
-          value: userLogin
         }
       ];
 
-      let arrDataCopyTo = await this.$commonFunction.getList(
-        this.getRequestCollection,
-        arrQueryCopyTo
-      );
+      if (this.userRole.isAdmin) {
+        arrData = await this.$commonFunction.getList(
+          this.getRequestCollection,
+          arrQuery
+        );
+      } else {
+        arrQuery.push({
+          field: "email",
+          oper: "==",
+          value: userLogin
+        });
 
-      arrDataCopyTo.forEach(doc => {
+        arrQueryCopyTo.push({
+          field: "copy_to",
+          oper: "array-contains",
+          value: userLogin
+        });
+
+        arrDataCreate = await this.$commonFunction.getList(
+          this.getRequestCollection,
+          arrQuery
+        );
+
+        arrDataCopyTo = await this.$commonFunction.getList(
+          this.getRequestCollection,
+          arrQueryCopyTo
+        );
+
+        let mergeArrData = arrDataCreate.concat(arrDataCopyTo);
+
+        arrData = Array.from(new Set(mergeArrData.map(a => a.id))).map(id => {
+          return mergeArrData.find(a => a.id === id);
+        });
+      }
+
+      arrData.forEach(doc => {
         let obj = {};
         let data = doc.data();
         obj.id = data.id;
@@ -195,11 +200,11 @@ export default {
       else this.isLarge = false;
     }
   },
-  created() {
+  async created() {
     window.addEventListener("resize", this.widthCalculating);
+    this.userRole = await this.$commonFunction.checkUserRole();
     this.loadCategory();
     this.loadInquiry();
-    console.log(this.$commonFunction.checkUserRole());
   },
   destroyed() {
     window.removeEventListener("resize", this.widthCalculating);
