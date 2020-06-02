@@ -113,21 +113,62 @@ export default {
     async loadInquiry() {
       this.fullscreenLoading = true;
       this.listInquiry = [];
-      let arrQuery = [
+      let userLogin = this.$commonFunction.getUserEmailLogin();
+      let arrQueryCreate = [
         {
           field: "active",
           oper: "==",
           value: "true",
           type: "boolean"
+        },
+        {
+          field: "created_by",
+          oper: "==",
+          value: userLogin
         }
       ];
 
-      let arrData = await this.$commonFunction.getList(
+      let arrDataCreate = await this.$commonFunction.getList(
         this.getRequestCollection,
-        arrQuery
+        arrQueryCreate
       );
 
-      arrData.forEach(doc => {
+      arrDataCreate.forEach(doc => {
+        let obj = {};
+        let data = doc.data();
+        obj.id = data.id;
+        obj.category = data.category;
+        obj.requester = data.requester_name + "\n" + data.created;
+        obj.request_to = data.request_to;
+        obj.inquiry = data.summary;
+        obj.risk_to = data.risk_to;
+        obj.status = data.status;
+        obj.updated = data.updated_by + "\n" + data.updated;
+        obj.publish = data.publish;
+        obj.documentId = doc.id;
+        this.listInquiry.push(obj);
+      });
+
+      let arrQueryCopyTo = [
+        {
+          field: "active",
+          oper: "==",
+          value: "true",
+          type: "boolean"
+        },
+        {
+          field: "copy_to",
+          oper: "array-contains",
+          value: userLogin
+        }
+      ];
+
+      let arrDataCopyTo = await this.$commonFunction.getList(
+        this.getRequestCollection,
+        arrQueryCopyTo
+      );
+
+      arrDataCopyTo.forEach(doc => {
         let obj = {};
         let data = doc.data();
         obj.id = data.id;
@@ -158,6 +199,7 @@ export default {
     window.addEventListener("resize", this.widthCalculating);
     this.loadCategory();
     this.loadInquiry();
+    console.log(this.$commonFunction.checkUserRole());
   },
   destroyed() {
     window.removeEventListener("resize", this.widthCalculating);
