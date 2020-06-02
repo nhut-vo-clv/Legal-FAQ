@@ -13,7 +13,7 @@
           </div>
           <el-divider>GENERAL INFO</el-divider>
           <el-form
-            label-position="left"
+            label-position="right"
             ref="formMakeRequest"
             :model="form"
             :rules="rules"
@@ -21,7 +21,11 @@
             size="small"
           >
             <el-form-item :label="rules.id[0].fieldLabel" :prop="rules.id[0].prop">
-              <el-input v-model="form.id" disabled></el-input>
+              <el-input
+                v-model="form.id"
+                disabled
+                placeholder="ID will be automatic created after submit the request"
+              ></el-input>
             </el-form-item>
             <el-form-item :label="rules.category[0].fieldLabel" :prop="rules.category[0].prop">
               <el-select
@@ -118,7 +122,11 @@
               :label="rules.request_date[0].fieldLabel"
               :prop="rules.request_date[0].prop"
             >
-              <el-input v-model="form.request_date" disabled></el-input>
+              <el-input
+                v-model="form.request_date"
+                disabled
+                placeholder="Format will be YYYY-MM-DD"
+              ></el-input>
             </el-form-item>
             <el-divider>DETAILS OF REQUEST</el-divider>
 
@@ -127,6 +135,7 @@
                 type="textarea"
                 :autosize="{ minRows: 5, maxRows: 5}"
                 v-model="form.summary"
+                placeholder="Summary of your inquiry"
               ></el-input>
             </el-form-item>
             <el-form-item
@@ -138,27 +147,40 @@
                 <el-option label="Zone two" value="beijing"></el-option>
               </el-select>
             </el-form-item>
-            <div>
-              <el-button type="primary" round @click="onApiLoad">Drive</el-button>
-              <el-table :data="listFileUpload" style="width: 100%">
-                <el-table-column prop="file_name" label="File name" width="300">
+            <el-form-item label="Attachment">
+              <i class="el-icon-paperclip attachment-icon" @click="onApiLoad"></i>
+              <el-table
+                border
+                v-if="listFileUpload.length > 0"
+                :data="listFileUpload"
+                style="width: 100%"
+              >
+                <el-table-column prop="file_name" label="File name">
                   <template #default="{row}">
                     <a :href="row.file_url" target="_blank">{{row['file_name']}}</a>
                   </template>
                 </el-table-column>
-                <el-table-column prop="created" label="Uploaded date" width="150">
+                <el-table-column prop="created" label="Uploaded date" width="160">
                   <template #default="{row}">{{$commonFunction.formatDate(row["created"].toDate())}}</template>
                 </el-table-column>
-                <el-table-column prop="created" label="Action" width="150">
+                <el-table-column prop="created" label="Operations" width="130">
                   <template #default="{row}">
-                    <el-button
-                      @click="downloadFile(row['file_id'], row['file_name'], row['file_url'])"
-                    >Download</el-button>
-                    <el-button>Delete</el-button>
+                    <el-tooltip content="Download Attachment" placement="top">
+                      <el-button
+                        type="success"
+                        icon="el-icon-download"
+                        circle
+                        @click="downloadFile(row['file_id'], row['file_name'], row['file_url'])"
+                      ></el-button>
+                    </el-tooltip>
+                    <el-tooltip content="Delete Attachment" placement="top">
+                      <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                    </el-tooltip>
                   </template>
                 </el-table-column>
               </el-table>
-            </div>
+            </el-form-item>
+
             <el-divider>COMMENTS</el-divider>
 
             <el-form-item :label="rules.risk_to[0].fieldLabel" :prop="rules.risk_to[0].prop">
@@ -185,6 +207,7 @@
               <el-input v-model="form.commenter_title"></el-input>
             </el-form-item>
             <div>
+              <el-divider v-if="listComment.length > 0">COMMENT LOGS</el-divider>
               <el-timeline>
                 <el-timeline-item
                   v-for="(comment, idx) in listComment"
@@ -193,9 +216,10 @@
                   :color="comment.isLegalTeam ? '#bd0f72' : '#FFFF00'"
                   placement="top"
                 >
-                  <el-card>
+                  <el-card class="comment-card">
                     <p>From: {{ comment.isLegalTeam ? 'Legal Team' : 'Requester' }}</p>
-                    <p>Title & Section: {{ comment.title_section }}</p>Comment:
+                    <p>Title & Section: {{ comment.title_section }}</p>
+                    <p>Comment:</p>
                     <div v-html="comment.value"></div>
                   </el-card>
                 </el-timeline-item>
@@ -301,7 +325,7 @@ let arrProp = {
     {
       required: false,
       elmType: "string",
-      fieldLabel: "Request Date (YYYY-MM-DD)",
+      fieldLabel: "Request Date",
       prop: "request_date"
     }
   ],
@@ -309,8 +333,7 @@ let arrProp = {
     {
       required: true,
       elmType: "string",
-      fieldLabel:
-        "What would you like to request?\r\n(Summary of your inquiry)",
+      fieldLabel: "What would you like to request?",
       prop: "summary"
     }
   ],
@@ -350,7 +373,7 @@ let arrProp = {
     {
       required: false,
       elmType: "string",
-      fieldLabel: "Commenter Title & Section",
+      fieldLabel: "Title & Section",
       prop: "commenter_title"
     }
   ],
@@ -1051,5 +1074,23 @@ export default {
   overflow: hidden !important;
   width: 70%;
   padding: 3px;
+}
+
+.attachment-icon {
+  font-size: 30px;
+}
+
+.attachment-icon:hover {
+  cursor: pointer;
+}
+
+.comment-card {
+  line-height: 15px;
+}
+
+.comment-card p {
+  margin-bottom: 7px;
+  font-weight: bold;
+  color: #2d1414;
 }
 </style>

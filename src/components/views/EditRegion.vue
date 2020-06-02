@@ -9,7 +9,16 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <div class="header-title center-item">Edit Region</div>
+            <div class="box-header-actions">
+              <div class="box-details">
+                <el-page-header @back="goBack" content="EDIT REGION"></el-page-header>
+              </div>
+              <div class="box-buttons">
+                <el-button size="small" type="primary" @click="onSubmit('formRegion')">SAVE</el-button>
+                <el-button size="small" @click="goBack">CANCEL</el-button>
+              </div>
+            </div>
+
             <el-form ref="formRegion" :model="form" :rules="rules" label-width="120px">
               <el-form-item :label="rules.name[0].fieldLabel" :prop="rules.name[0].prop">
                 <el-input v-model="form.name" size="small"></el-input>
@@ -36,7 +45,7 @@
                   class="button-new-tag"
                   size="small"
                   @click="showInput('email')"
-                >+ New Tag</el-button>
+                >+ New Email</el-button>
               </el-form-item>
               <el-form-item label="Group Email">
                 <el-tag
@@ -60,12 +69,9 @@
                   class="button-new-tag"
                   size="small"
                   @click="showInput('group_email')"
-                >+ New Tag</el-button>
+                >+ New Group Email</el-button>
               </el-form-item>
             </el-form>
-            <div class="center-item">
-              <el-button type="primary" @click="onSubmit('formRegion')" size="small">Save</el-button>
-            </div>
           </el-col>
         </el-row>
       </el-main>
@@ -81,7 +87,9 @@ export default {
   name: "EditRegion",
   data() {
     let arrProp = {
-      name: [{ required: true, elmType: "string", fieldLabel: 'Name', prop: 'name' }]
+      name: [
+        { required: true, elmType: "string", fieldLabel: "Name", prop: "name" }
+      ]
     };
     return {
       form: this.$commonFunction.getFormPorp(arrProp),
@@ -197,6 +205,10 @@ export default {
         this.inputGroupEmailVisible = false;
         this.inputGroupEmailValue = "";
       }
+    },
+
+    goBack() {
+      this.$router.go(-1);
     }
   },
   created() {

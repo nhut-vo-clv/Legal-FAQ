@@ -47,7 +47,7 @@
               v-if="isLarge"
             ></el-table-column>
             <el-table-column label="Publish" width="75" prop="publish" sortable>
-              <template #default="{row}">
+              <template class="cell-publish" #default="{row}">
                 <el-checkbox v-model="row.publish"></el-checkbox>
               </template>
             </el-table-column>

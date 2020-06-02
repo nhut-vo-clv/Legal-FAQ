@@ -39,6 +39,9 @@ Vue.use(VueQuillEditor, /* { default global options } */)
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+import './styles/global.css' // for bubble theme
+
+
 import App from './App'
 import { store } from './store';
 import { commonFunction } from './common-function'

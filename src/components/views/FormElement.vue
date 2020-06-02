@@ -236,39 +236,4 @@ export default {
 .center-item {
   text-align: center;
 }
-
-.middle-slash {
-  text-align: center;
-}
-
-.box-header-actions {
-  background-color: #eee;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-  display: flex;
-  padding: 10px;
-  line-height: 0%;
-}
-
-.box-buttons {
-  margin-left: auto;
-}
-
-.box-buttons > button {
-  margin: 2px;
-}
-
-.box-title {
-  transform: translateY(50%);
-  padding-right: 20px;
-  font-size: 18px;
-  color: #bd0f72;
-  font-weight: bold;
-}
-
-.box-details {
-  transform: translateY(20%);
-  padding-right: 20px;
-}
-
 </style>
