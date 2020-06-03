@@ -38,3 +38,8 @@
     font-size: 20px;
     cursor: pointer;
 }
+
+
+.ql-comment-show {
+    border: none !important;
+}

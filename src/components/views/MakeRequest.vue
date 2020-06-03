@@ -16,10 +16,9 @@
             </div>
           </div>
 
-
           <el-divider>GENERAL INFO</el-divider>
           <el-form
-            label-position="right"
+            :label-position="labelPosition"
             ref="formMakeRequest"
             :model="form"
             :rules="rules"
@@ -226,7 +225,11 @@
                     <p>From: {{ comment.isLegalTeam ? 'Legal Team' : 'Requester' }}</p>
                     <p>Title & Section: {{ comment.title_section }}</p>
                     <p>Comment:</p>
-                    <div v-html="comment.value"></div>
+                    <div class="ql-container ql-snow ql-comment-show">
+                      <div class="ql-editor">
+                        <div v-html="comment.value"></div>
+                      </div>
+                    </div>
                   </el-card>
                 </el-timeline-item>
               </el-timeline>
@@ -427,7 +430,8 @@ export default {
         "spreadsheets",
         "presentation",
         "drawings"
-      ]
+      ],
+      labelPosition: "right"
     };
   },
   methods: {
@@ -486,7 +490,9 @@ export default {
         this.form.created.toDate()
       );
 
-      this.driveFolder = this.form.upload_folder_id ? this.form.upload_folder_id : '';
+      this.driveFolder = this.form.upload_folder_id
+        ? this.form.upload_folder_id
+        : "";
 
       await this.loadComment(this.paramDocId);
       await this.loadFileUpload();
@@ -583,7 +589,6 @@ export default {
 
           if (this.driveFolder) {
             //let folderName = await this.getFolderName(this.driveFolder);
-
             /*if (folderName !== this.form.id) {
               await this.updateFolderName(this.driveFolder, this.form.id);
             }*/
@@ -978,6 +983,12 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
+    },
+
+    /**  */
+    widthCalculating() {
+      if (window.innerWidth > 1000) this.labelPosition = "right";
+      else this.labelPosition = "top";
     }
   },
   created() {
@@ -985,7 +996,7 @@ export default {
     this.loadCategory();
     this.loadRegion();
     this.loadUserInfo();
-
+    window.addEventListener("resize", this.widthCalculating);
     if (this.paramDocId !== this.isNewRecord) {
       this.loadRequest();
     }
@@ -1015,6 +1026,9 @@ export default {
     /**
      Load Google Api Lib (E)
     **/
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.widthCalculating);
   }
 };
 </script>
