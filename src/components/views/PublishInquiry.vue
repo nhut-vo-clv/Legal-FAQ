@@ -9,9 +9,7 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <el-divider>
-              <div class="header-title center-item">PUBLISHED FAQ</div>
-            </el-divider>
+            <div class="header-title center-item">PUBLISHED FAQ</div>
           </el-col>
           <el-table :data="listPublishInquiry" border style="width: 100%">
             <el-table-column type="index" width="30"></el-table-column>
@@ -133,21 +131,21 @@ export default {
       this.fullscreenLoading = false;
     },
     getLastComment(requestId) {
-        return new Promise((resolve, reject) => {
-            this.$db
-                .collection(this.getCommentCollection)
-                .where("request_id", "==", requestId)
-                .orderBy("created", "desc")
-                .limit(1)
-                .get()
-                .then(snapshot => {
-                    if (snapshot.docs.length > 0) {
-                        resolve(snapshot.docs[0].data().value);
-                    } else {
-                        resolve('');
-                    }
-                });
-        });
+      return new Promise((resolve, reject) => {
+        this.$db
+          .collection(this.getCommentCollection)
+          .where("request_id", "==", requestId)
+          .orderBy("created", "desc")
+          .limit(1)
+          .get()
+          .then(snapshot => {
+            if (snapshot.docs.length > 0) {
+              resolve(snapshot.docs[0].data().value);
+            } else {
+              resolve("");
+            }
+          });
+      });
     },
     filterHandler(value, row, column) {
       const property = column["property"];
@@ -167,7 +165,11 @@ export default {
     window.removeEventListener("resize", this.widthCalculating);
   },
   computed: {
-    ...mapGetters(["getRequestCollection", "getCategoryMasterDataCollection", "getCommentCollection"])
+    ...mapGetters([
+      "getRequestCollection",
+      "getCategoryMasterDataCollection",
+      "getCommentCollection"
+    ])
   },
   mounted() {
     this.widthCalculating();
