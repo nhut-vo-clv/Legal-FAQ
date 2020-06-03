@@ -11,7 +11,7 @@
           >
             <div class="header-title center-item">INQUIRY LIST</div>
           </el-col>
-          <el-table :data="listInquiry" border style="width: 100%">
+          <el-table :data="listInquiry" stripe style="width: 100%">
             <el-table-column type="expand" width="30">
               <template slot-scope="props">
                 <p>Category: {{ props.row.category }}</p>
@@ -245,6 +245,7 @@ export default {
     }
   },
   async created() {
+    this.widthCalculating();
     window.addEventListener("resize", this.widthCalculating);
     this.userRole = await this.$commonFunction.checkUserRole();
     this.loadCategory();

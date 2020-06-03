@@ -26,7 +26,7 @@
               label-width="150px"
               size="small"
             >
-            <el-form-item :label="rules.super_email[0].fieldLabel">
+              <el-form-item :label="rules.super_email[0].fieldLabel">
                 <el-tag
                   :key="tag"
                   v-for="tag in tagSuperEmail"
@@ -76,8 +76,23 @@
               </div>
             </div>
           </el-col>
+
           <el-table :data="regionData" stripe style="width: 100%">
             <el-table-column label="Name" min-width="150px" prop="name" sortable></el-table-column>
+            <el-table-column prop="email" label="Email" min-width="150px">
+              <template #default="{row}">
+                <el-tag :key="email" v-for="email in row.email" disable-transitions>{{email}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="group_email" label="Group Email" min-width="150px">
+              <template #default="{row}">
+                <el-tag
+                  :key="group_email"
+                  v-for="group_email in row.group_email"
+                  disable-transitions
+                >{{group_email}}</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="Active" min-width="150px" prop="active" sortable></el-table-column>
             <el-table-column
               label="Created"
@@ -95,16 +110,7 @@
               sortable
               v-if="isLarge"
             ></el-table-column>
-            <el-table-column prop="email" label="Email" min-width="150px">
-              <template #default="{row}">
-                <el-tag :key="email" v-for="email in row.email" disable-transitions>{{email}}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="group_email" label="Group Email" min-width="150px">
-              <template #default="{row}">
-                <el-tag :key="group_email" v-for="group_email in row.group_email" disable-transitions>{{group_email}}</el-tag>
-              </template>
-            </el-table-column>
+
             <el-table-column align="right" label="Operations">
               <template slot-scope="scope">
                 <el-button
@@ -206,7 +212,7 @@ export default {
       isLarge: false,
       tagSuperEmail: [],
       inputSuperEmailVisible: false,
-      inputSuperEmailValue: "",
+      inputSuperEmailValue: ""
     };
   },
   methods: {
@@ -326,7 +332,7 @@ export default {
         this.inputSuperEmailVisible = false;
         this.inputSuperEmailValue = "";
       }
-    },
+    }
   },
   created() {
     window.addEventListener("resize", this.widthCalculating);
@@ -376,5 +382,14 @@ export default {
 
 .isHide {
   display: none;
+}
+
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+
+.cell .el-tag + .el-tag {
+  margin-left: 0px !important;
+  margin-top: 5px;
 }
 </style>

@@ -11,7 +11,7 @@
           >
             <div class="header-title center-item">PUBLISHED FAQ</div>
           </el-col>
-          <el-table :data="listPublishInquiry" border style="width: 100%">
+          <el-table :data="listPublishInquiry" stripe style="width: 100%">
             <el-table-column type="index" width="30"></el-table-column>
             <el-table-column
               label="Category"
@@ -157,6 +157,7 @@ export default {
     }
   },
   async created() {
+    this.widthCalculating();
     window.addEventListener("resize", this.widthCalculating);
     this.loadCategory();
     this.loadPublishInquiry();

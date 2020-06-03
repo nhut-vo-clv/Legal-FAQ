@@ -15,6 +15,7 @@
             <div class="box-details" v-if="isNewRecord != paramDocId">
               <el-page-header @back="goBack" :content="form.id"></el-page-header>
             </div>
+
             <div class="box-buttons">
               <el-button
                 size="small"
@@ -1115,7 +1116,10 @@ export default {
     this.loadRegion();
     this.loadUserInfo();
     this.userRole = await this.$commonFunction.checkUserRole();
+    /**get screen width */
+    this.widthCalculating();
     window.addEventListener("resize", this.widthCalculating);
+
     if (this.paramDocId !== this.isNewRecord) {
       this.loadRequest();
     } else {
