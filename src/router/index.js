@@ -9,6 +9,7 @@ import DrivePicker from '@/components/elements/DrivePicker'
 import Setting from '@/components/views/Setting'
 import EditRegion from '@/components/views/EditRegion'
 import MakeRequest from '@/components/views/MakeRequest'
+import PublishInquiry from '@/components/views/PublishInquiry'
 
 Vue.use(Router);
 
@@ -74,7 +75,15 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
-    }
+    },
+    {
+      path: '/publish-inquiry',
+      name: 'PublishInquiry',
+      component: PublishInquiry,
+      meta: {
+        requiresAuth: true
+      }
+    },
   ],
   mode:  'history',
   linkActiveClass: 'is-active',

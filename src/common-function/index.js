@@ -6,16 +6,27 @@ import axios from 'axios';
 export const commonFunction = {
     getList(collectionName, arrQuery) {
         return new Promise((resolve, reject) => {
-            var ref = firebase.firestore().collection(collectionName);
+            let arrOrder = [];
+            let ref = firebase.firestore().collection(collectionName);
 
             for (let i in arrQuery) {
+                let flagAddWhere = true;
                 let query = arrQuery[i];
 
                 if (query.type && query.type.toLowerCase() === 'boolean') {
                     query.value = JSON.parse(query.value.toLowerCase());
+                }else if(query.type && query.type.toLowerCase() === 'order'){
+                    arrOrder.push(query);
+                    flagAddWhere = false;
                 }
 
-                ref = ref.where(query.field, query.oper, query.value);
+                if(flagAddWhere)
+                    ref = ref.where(query.field, query.oper, query.value);
+            }
+
+            for (let i in arrOrder) {
+                let query = arrOrder[i];
+                ref = ref.orderBy(query.field, query.value);
             }
 
             ref
@@ -154,22 +165,26 @@ export const commonFunction = {
             this.alertError(error.message);
         }
     },
-    getSystemField(isIncludeCreateField) {
-        let emailUserLogin = this.getUserEmailLogin();
+    getSystemDate(){
         let d = new Date();
         let utc = d.getTime() + d.getTimezoneOffset() * 60000;
         let nd = new Date(utc + 3600000 * "+8");
+        return nd;
+    },
+    getSystemField(isIncludeCreateField) {
+        let emailUserLogin = this.getUserEmailLogin();
+        let date = this.getSystemDate();
 
         if (isIncludeCreateField) {
             return {
-                created: nd,
+                created: date,
                 created_by: emailUserLogin,
-                updated: nd,
+                updated: date,
                 updated_by: emailUserLogin
             };
         } else {
             return {
-                updated: nd,
+                updated: date,
                 updated_by: emailUserLogin
             };
         }

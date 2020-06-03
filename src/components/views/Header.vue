@@ -8,6 +8,9 @@
             <router-link to="/home">HOME</router-link>
           </li>
           <li>
+            <router-link to="/publish-inquiry">PUBLISHED FAQ</router-link>
+          </li>
+          <li>
             <router-link to="/make-request/isNew">MAKE REQUEST</router-link>
           </li>
           <li>

@@ -7,6 +7,7 @@
     @blur="onEditorBlur($event)"
     @focus="onEditorFocus($event)"
     @ready="onEditorReady($event)"
+    @change="onEditorChange"
   />
 
   <!-- Or manually control the data synchronization -->
@@ -43,9 +44,10 @@ export default {
   components: {
     quillEditor
   },
+  props: ["value"],
   data() {
     return {
-      content: "",
+      content: this.value,
       editorOption: {
         modules: {
           toolbar: [
@@ -73,17 +75,15 @@ export default {
   },
   methods: {
     onEditorBlur(quill) {
-      console.log("editor blur!", quill);
     },
     onEditorFocus(quill) {
-      console.log("editor focus!", quill);
     },
     onEditorReady(quill) {
-      console.log("editor ready!", quill);
     },
     onEditorChange({ quill, html, text }) {
-      console.log("editor change!", quill, html, text);
       this.content = html;
+      this.emitAfterOnUpdate = true;
+        this.$emit("editorContent", html);
     }
   },
   computed: {
@@ -92,7 +92,15 @@ export default {
     }
   },
   mounted() {
-    console.log("this is current quill instance object", this.editor);
+  },
+  watch: {
+    value(val) {
+      if (this.emitAfterOnUpdate) {
+        this.emitAfterOnUpdate = false;
+        return;
+      }
+      this.content = val;
+    }
   }
 };
 </script>

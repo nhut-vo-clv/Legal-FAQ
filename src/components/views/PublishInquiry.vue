@@ -10,12 +10,11 @@
             :sm="{span: 16, offset: 4}"
           >
             <el-divider>
-              <div class="header-title center-item">INQUIRY LIST</div>
+              <div class="header-title center-item">Published FAQ</div>
             </el-divider>
           </el-col>
-          <el-table :data="listInquiry" border style="width: 100%">
+          <el-table :data="listPublishInquiry" border style="width: 100%">
             <el-table-column type="index" width="30"></el-table-column>
-            <el-table-column label="ID" width="100px" prop="id" sortable></el-table-column>
             <el-table-column
               label="Category"
               width="120px"
@@ -24,42 +23,14 @@
               :filter-method="filterHandler"
               sortable
             ></el-table-column>
-            <el-table-column
-              label="Requester"
-              width="150px"
-              prop="requester"
-              sortable
-              v-if="isLarge"
-            ></el-table-column>
-            <el-table-column label="Request to" width="150px" prop="request_to" sortable></el-table-column>
             <el-table-column label="Inquiry" min-width="150px" prop="inquiry" sortable></el-table-column>
             <el-table-column
-              label="Risk to ONE"
+              label="Comment Provided"
               min-width="150px"
-              prop="risk_to"
+              prop="comment"
               sortable
               v-if="isLarge"
             ></el-table-column>
-            <el-table-column label="Status" min-width="150px" prop="status" sortable v-if="isLarge"></el-table-column>
-            <el-table-column
-              label="Updated"
-              min-width="150px"
-              prop="updated"
-              sortable
-              v-if="isLarge"
-            ></el-table-column>
-            <el-table-column
-              label="Publish"
-              width="100"
-              align="center"
-              class-name="checkbox-in-cell"
-              prop="publish"
-              sortable
-            >
-              <template class="cell-publish" #default="{row}">
-                <el-checkbox :checked="row.publish" @change="publishRecord($event, row)"></el-checkbox>
-              </template>
-            </el-table-column>
             <el-table-column width="40" align="right">
               <template #default="{row}">
                 <router-link :to="'make-request/' + row.documentId">
@@ -78,14 +49,13 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "Inquiry",
+  name: "PublishInquiry",
   data() {
     return {
       fullscreenLoading: false,
       isLarge: false,
-      listInquiry: [],
-      listCategory: [],
-      userRole: {}
+      listPublishInquiry: [],
+      listCategory: []
     };
   },
   methods: {
@@ -118,12 +88,10 @@ export default {
         return a.order - b.order;
       });
     },
-    async loadInquiry() {
+    async loadPublishInquiry() {
       this.fullscreenLoading = true;
-      this.listInquiry = [];
+      this.listPublishInquiry = [];
       let userLogin = this.$commonFunction.getUserEmailLogin();
-      let arrDataCreate = [];
-      let arrDataCopyTo = [];
       let arrData = [];
       let arrQuery = [
         {
@@ -131,83 +99,55 @@ export default {
           oper: "==",
           value: "true",
           type: "boolean"
-        }
-      ];
-
-      let arrQueryCopyTo = [
+        },
         {
-          field: "active",
+          field: "publish",
           oper: "==",
           value: "true",
           type: "boolean"
+        },
+        {
+          field: "publish_date",
+          value: "desc",
+          type: "order"
         }
       ];
 
-      if (this.userRole.isAdmin) {
-        arrData = await this.$commonFunction.getList(
-          this.getRequestCollection,
-          arrQuery
-        );
-      } else {
-        arrQuery.push({
-          field: "email",
-          oper: "==",
-          value: userLogin
-        });
+      arrData = await this.$commonFunction.getList(
+        this.getRequestCollection,
+        arrQuery
+      );
 
-        arrQueryCopyTo.push({
-          field: "copy_to",
-          oper: "array-contains",
-          value: userLogin
-        });
-
-        arrDataCreate = await this.$commonFunction.getList(
-          this.getRequestCollection,
-          arrQuery
-        );
-
-        arrDataCopyTo = await this.$commonFunction.getList(
-          this.getRequestCollection,
-          arrQueryCopyTo
-        );
-
-        let mergeArrData = arrDataCreate.concat(arrDataCopyTo);
-
-        arrData = Array.from(new Set(mergeArrData.map(a => a.id))).map(id => {
-          return mergeArrData.find(a => a.id === id);
-        });
-      }
-
-      arrData.forEach(doc => {
+      arrData.forEach(async doc => {
         let obj = {};
         let data = doc.data();
-        obj.id = data.id;
         obj.category = data.category;
-        obj.requester = data.requester_name + "\n" + data.created;
-        obj.request_to = data.request_to;
         obj.inquiry = data.summary;
-        obj.risk_to = data.risk_to;
-        obj.status = data.status;
-        obj.updated = data.updated_by + "\n" + data.updated;
-        obj.publish = data.publish;
         obj.documentId = doc.id;
-        this.listInquiry.push(obj);
+
+        obj.comment = await this.getLastComment(doc.id);
+
+        this.listPublishInquiry.push(obj);
       });
 
       this.fullscreenLoading = false;
     },
-    async publishRecord(checkVal, record) {
-      let obj = {publish: checkVal};
-
-      if(checkVal){
-        obj.publish_date = this.$commonFunction.getSystemDate();
-      }
-
-      await this.$commonFunction.updateRecord(
-        this.getRequestCollection,
-        record.documentId,
-        obj
-      );
+    getLastComment(requestId) {
+        return new Promise((resolve, reject) => {
+            this.$db
+                .collection(this.getCommentCollection)
+                .where("request_id", "==", requestId)
+                .orderBy("created", "desc")
+                .limit(1)
+                .get()
+                .then(snapshot => {
+                    if (snapshot.docs.length > 0) {
+                        resolve(snapshot.docs[0].data().value);
+                    } else {
+                        resolve('');
+                    }
+                });
+        });
     },
     filterHandler(value, row, column) {
       const property = column["property"];
@@ -220,15 +160,14 @@ export default {
   },
   async created() {
     window.addEventListener("resize", this.widthCalculating);
-    this.userRole = await this.$commonFunction.checkUserRole();
     this.loadCategory();
-    this.loadInquiry();
+    this.loadPublishInquiry();
   },
   destroyed() {
     window.removeEventListener("resize", this.widthCalculating);
   },
   computed: {
-    ...mapGetters(["getRequestCollection", "getCategoryMasterDataCollection"])
+    ...mapGetters(["getRequestCollection", "getCategoryMasterDataCollection", "getCommentCollection"])
   },
   mounted() {
     this.widthCalculating();
