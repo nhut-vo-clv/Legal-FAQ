@@ -581,14 +581,12 @@ export default {
             insertFlag = true;
           }
 
-          console.log(this.driveFolder);
-
           if (this.driveFolder) {
-            let folderName = await this.getFolderName(this.driveFolder);
+            //let folderName = await this.getFolderName(this.driveFolder);
 
-            if (folderName !== this.form.id) {
+            /*if (folderName !== this.form.id) {
               await this.updateFolderName(this.driveFolder, this.form.id);
-            }
+            }*/
           }
 
           if (this.commentContent) {
