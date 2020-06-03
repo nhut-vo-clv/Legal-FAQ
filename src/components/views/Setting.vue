@@ -9,17 +9,16 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
+            <div class="box-header-actions">
+              <div class="box-title">
+                <div>ADMIN SETTING</div>
+              </div>
+              <div class="box-buttons">
+                <el-button size="small" type="primary" @click="onSave('formSetting')">SAVE</el-button>
+                <el-button size="small" @click="goBack">CANCEL</el-button>
+              </div>
+            </div>
 
-          <div class="box-header-actions">
-            <div class="box-title">
-              <div>ADMIN SETTING</div>
-            </div>
-            <div class="box-buttons">
-              <el-button size="small" type="primary" @click="onSave('formSetting')">SAVE</el-button>
-              <el-button size="small" @click="goBack">CANCEL</el-button>
-            </div>
-          </div>
-        
             <el-form
               ref="formSetting"
               :model="form"
@@ -39,7 +38,6 @@
               >
                 <el-input v-model="form.upload_email"></el-input>
               </el-form-item>
-           
             </el-form>
             <hr />
           </el-col>
@@ -51,24 +49,17 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-
-
-          <div class="box-header-actions">
-            <div class="box-title">
-              <div>REGIONS SETTING</div>
+            <div class="box-header-actions">
+              <div class="box-title">
+                <div>REGIONS SETTING</div>
+              </div>
+              <div class="box-buttons">
+                <el-button size="small" type="primary" @click="newRegion">NEW REGION</el-button>
+              </div>
             </div>
-            <div class="box-buttons">
-              <el-button size="small" type="primary" @click="newRegion">NEW REGION</el-button>
-            </div>
-          </div>
-
           </el-col>
           <el-table :data="regionData" stripe style="width: 100%">
-            <el-table-column label="Name" min-width="150px" prop="name" sortable>
-              <template #default="{row}">
-                <router-link :to="'edit-region/' + row.documentId">{{row['name']}}</router-link>
-              </template>
-            </el-table-column>
+            <el-table-column label="Name" min-width="150px" prop="name" sortable></el-table-column>
             <el-table-column label="Active" min-width="150px" prop="active" sortable></el-table-column>
             <el-table-column
               label="Created"
@@ -102,6 +93,15 @@
               sortable
               v-if="isLarge"
             ></el-table-column>
+             <el-table-column align="right" label="Operations">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="editRegion(scope.$index, scope.row)"
+                >Edit</el-button>
+              </template>
+            </el-table-column>
           </el-table>
         </el-row>
       </el-main>
@@ -252,6 +252,9 @@ export default {
     widthCalculating() {
       if (window.innerWidth > 1000) this.isLarge = true;
       else this.isLarge = false;
+    },
+    editRegion(idx, item) {
+      this.$router.push("edit-region/" + item.documentId);
     }
   },
   created() {
