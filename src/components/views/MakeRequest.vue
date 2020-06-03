@@ -5,7 +5,7 @@
         <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <div class="box-header-actions">
             <div class="box-title" v-if="isNewRecord == paramDocId">
-              <div>MAKE REQUEST</div>
+              <div>NEW REQUEST</div>
             </div>
             <div class="box-details" v-if="isNewRecord != paramDocId">
               <el-page-header @back="goBack" :content="form.id"></el-page-header>
