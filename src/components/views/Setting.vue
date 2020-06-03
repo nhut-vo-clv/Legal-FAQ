@@ -26,11 +26,29 @@
               label-width="150px"
               size="small"
             >
-              <el-form-item
-                :label="rules.super_email[0].fieldLabel"
-                :prop="rules.super_email[0].prop"
-              >
-                <el-input v-model="form.super_email"></el-input>
+            <el-form-item :label="rules.super_email[0].fieldLabel">
+                <el-tag
+                  :key="tag"
+                  v-for="tag in tagSuperEmail"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleClose(tag, 'super_email')"
+                >{{tag}}</el-tag>
+                <el-input
+                  class="input-new-tag"
+                  v-if="inputSuperEmailVisible"
+                  v-model="inputSuperEmailValue"
+                  ref="saveTagInput"
+                  size="mini"
+                  @keyup.enter.native="handleInputConfirm('super_email')"
+                  @blur="handleInputConfirm('super_email')"
+                ></el-input>
+                <el-button
+                  v-else
+                  class="button-new-tag"
+                  size="small"
+                  @click="showInput('super_email')"
+                >+ New Super Email</el-button>
               </el-form-item>
               <el-form-item
                 :label="rules.upload_email[0].fieldLabel"
@@ -185,7 +203,10 @@ export default {
       ],
       regionData: [],
       fullscreenLoading: false,
-      isLarge: false
+      isLarge: false,
+      tagSuperEmail: [],
+      inputSuperEmailVisible: false,
+      inputSuperEmailValue: "",
     };
   },
   methods: {
@@ -194,6 +215,8 @@ export default {
         this.getCommonCollection,
         this.getSettingDocument
       );
+
+      this.tagSuperEmail = this.form.super_email;
     },
     async loadRegion(arrQuery) {
       this.fullscreenLoading = true;
@@ -230,6 +253,7 @@ export default {
     onSave(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          this.form.super_email = this.tagSuperEmail;
           await this.$commonFunction.updateRecord(
             this.getCommonCollection,
             this.getSettingDocument,
@@ -249,7 +273,60 @@ export default {
     },
     editRegion(idx, item) {
       this.$router.push("edit-region/" + item.documentId);
-    }
+    },
+    handleClose(tag, type) {
+      if (type === "super_email") {
+        this.tagSuperEmail.splice(this.tagSuperEmail.indexOf(tag), 1);
+      }
+    },
+    showInput(type) {
+      if (type === "super_email") {
+        this.inputSuperEmailVisible = true;
+      }
+
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+    handleInputConfirm(type) {
+      let inputValue = "";
+      let isDuplicate = false;
+      let arrData = [];
+
+      if (type === "super_email") {
+        inputValue = this.inputSuperEmailValue;
+        arrData = this.tagSuperEmail;
+      }
+
+      if (inputValue) {
+        if (this.$commonFunction.validateEmail(inputValue)) {
+          if (!arrData) arrData = [];
+          if (arrData.indexOf(inputValue) != -1) {
+            isDuplicate = true;
+          } else {
+            arrData.push(inputValue);
+          }
+        } else {
+          this.$commonFunction.alertWarning("Please input valid email");
+          return;
+        }
+      }
+
+      if (isDuplicate) {
+        this.$alert("Duplicate data", "Warning", {
+          confirmButtonText: "OK"
+        });
+      } else {
+        if (type === "super_email") {
+          this.tagSuperEmail = arrData;
+        }
+      }
+
+      if (type === "super_email") {
+        this.inputSuperEmailVisible = false;
+        this.inputSuperEmailValue = "";
+      }
+    },
   },
   created() {
     window.addEventListener("resize", this.widthCalculating);
