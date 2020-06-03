@@ -218,7 +218,7 @@
                 <el-timeline-item
                   v-for="(comment, idx) in listComment"
                   :key="idx"
-                  :timestamp="$commonFunction.getAvatarCharacter(comment.commenter_name) + ' ' + comment.commenter_name + ' - ' + $commonFunction.formatDate(comment.created.toDate())"
+                  :timestamp="comment.commenter_name + ' - ' + $commonFunction.formatDate(comment.created.toDate())"
                   :color="comment.isLegalTeam ? '#bd0f72' : '#FFFF00'"
                   placement="top"
                 >
@@ -486,7 +486,7 @@ export default {
         this.form.created.toDate()
       );
 
-      this.driveFolder = this.form.upload_folder_id;
+      this.driveFolder = this.form.upload_folder_id ? this.form.upload_folder_id : '';
 
       await this.loadComment(this.paramDocId);
       await this.loadFileUpload();
@@ -514,6 +514,7 @@ export default {
         );
 
         arrData.forEach(doc => {
+          console.log(doc.data());
           this.listComment.push(doc.data());
         });
         resolve(true);
@@ -579,6 +580,8 @@ export default {
             );
             insertFlag = true;
           }
+
+          console.log(this.driveFolder);
 
           if (this.driveFolder) {
             let folderName = await this.getFolderName(this.driveFolder);
