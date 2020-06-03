@@ -26,6 +26,9 @@
               <el-form-item :label="rules.name[0].fieldLabel" :prop="rules.name[0].prop">
                 <el-input v-model="form.name" size="small"></el-input>
               </el-form-item>
+              <el-form-item label="Active" prop="active">
+                <el-checkbox v-model="form.active"></el-checkbox>
+              </el-form-item>
               <el-form-item label="Email">
                 <el-tag
                   :key="tag"
@@ -209,7 +212,6 @@ export default {
         this.inputGroupEmailValue = "";
       }
     },
-
     goBack() {
       this.$router.go(-1);
     }
