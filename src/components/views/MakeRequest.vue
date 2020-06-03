@@ -41,7 +41,7 @@
             <el-form-item :label="rules.category[0].fieldLabel" :prop="rules.category[0].prop">
               <el-select
                 size="small"
-                @change="categoryOnChange"
+                @change="categoryOnChange($event)"
                 v-model="form.category"
                 placeholder="Please select Category"
               >
@@ -153,9 +153,13 @@
               :label="rules.request_type[0].fieldLabel"
               :prop="rules.request_type[0].prop"
             >
-              <el-select v-model="form.request_type" placeholder="Please select Category">
-                <el-option label="Zone one" value="shanghai"></el-option>
-                <el-option label="Zone two" value="beijing"></el-option>
+              <el-select v-model="form.request_type" placeholder="Please select Request type">
+                <el-option
+                  v-for="(requestType, idx) in listRequestType"
+                  :key="idx"
+                  :label="requestType"
+                  :value="requestType"
+                />
               </el-select>
             </el-form-item>
             <el-form-item label="Attachment">
@@ -229,7 +233,7 @@
                 >
                   <el-card class="comment-card">
                     <p>From: {{ comment.isLegalTeam ? 'Legal Team' : 'Requester' }}</p>
-                    <p>Title & Section: {{ comment.title_section }}</p>
+                    <p>Title & Section: {{ comment.commenter_title }}</p>
                     <p>Comment:</p>
                     <div class="ql-container ql-snow ql-comment-show">
                       <div class="ql-editor">
@@ -425,6 +429,7 @@ export default {
       pickerApiLoaded: false,
       driveFolder: "",
       listFileUpload: [],
+      listRequestType: [],
       masterDataFileType: {
         docx: ["document", "docx", "odt", "rtf", "pdf", "txt", "zip", "epub"],
         xlsx: ["spreadsheets", "xlsx", "ods", "pdf", "zip"],
@@ -528,7 +533,6 @@ export default {
         );
 
         arrData.forEach(doc => {
-          console.log(doc.data());
           this.listComment.push(doc.data());
         });
         resolve(true);
@@ -565,7 +569,16 @@ export default {
       }
       this.fullscreenLoading = false;
     },
-    categoryOnChange() {},
+    categoryOnChange(val) {
+      this.listRequestType = [];
+      if (val === "Insurance") {
+        this.listRequestType = ['Marine', 'Non Marine'];
+      } else if (val === "Policy") {
+        this.listRequestType = ['Credo-CoC', 'Anti-bribery', 'Sanction', 'Meeting with competitors', 'Data Protection', 'Others'];
+      } else if (val === "Compliance") {
+        this.listRequestType = ['Competition', 'Anti-bribery', 'Sanction', 'Data protection', 'Conflict of Interest', 'Fraud', 'Others'];
+      }
+    },
     onSubmit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
@@ -608,6 +621,8 @@ export default {
             objComment.isLegalTeam = true;
             objComment.request_id = this.paramDocId;
             objComment.value = this.commentContent;
+            objComment.commenter_name = this.form.commenter_name;
+            objComment.commenter_title = this.form.commenter_title;
 
             await this.$commonFunction.insertRecord(
               this.getCommentCollection,

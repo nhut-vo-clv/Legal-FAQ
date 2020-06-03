@@ -77,23 +77,17 @@
               sortable
               v-if="isLarge"
             ></el-table-column>
-            <el-table-column
-              label="Updated"
-              min-width="150px"
-              prop="updated"
-              sortable
-              v-if="isLarge"
-            >
-              <template #default="{row}">{{$commonFunction.formatDate(row["updated"])}}</template>
+            <el-table-column prop="email" label="Email" min-width="150px">
+              <template #default="{row}">
+                <el-tag :key="email" v-for="email in row.email" disable-transitions>{{email}}</el-tag>
+              </template>
             </el-table-column>
-            <el-table-column
-              label="Updated By"
-              min-width="150px"
-              prop="updated_by"
-              sortable
-              v-if="isLarge"
-            ></el-table-column>
-             <el-table-column align="right" label="Operations">
+            <el-table-column prop="group_email" label="Group Email" min-width="150px">
+              <template #default="{row}">
+                <el-tag :key="group_email" v-for="group_email in row.group_email" disable-transitions>{{group_email}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="right" label="Operations">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
