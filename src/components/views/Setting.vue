@@ -11,11 +11,11 @@
           >
             <div class="box-header-actions">
               <div class="box-title">
-                <div>ADMIN SETTING</div>
+                <p>ADMIN SETTING</p>
               </div>
               <div class="box-buttons">
                 <el-button size="small" type="primary" @click="onSave('formSetting')">SAVE</el-button>
-                <el-button size="small" @click="goBack">CANCEL</el-button>
+                <!-- <el-button size="small" @click="goBack">CANCEL</el-button> -->
               </div>
             </div>
 
@@ -69,7 +69,7 @@
           >
             <div class="box-header-actions">
               <div class="box-title">
-                <div>REGIONS SETTING</div>
+                <p>REGIONS SETTING</p>
               </div>
               <div class="box-buttons">
                 <el-button size="small" type="primary" @click="newRegion">NEW REGION</el-button>
@@ -271,7 +271,7 @@ export default {
       });
     },
     newRegion() {
-      this.$router.replace("edit-region/isNew");
+      this.$router.push("edit-region/isNew");
     },
     widthCalculating() {
       if (window.innerWidth > 1000) this.isLarge = true;
@@ -384,12 +384,12 @@ export default {
   display: none;
 }
 
-.el-tag + .el-tag {
+/* .el-tag + .el-tag {
   margin-left: 10px;
-}
+} */
 
 .cell .el-tag + .el-tag {
-  margin-left: 0px !important;
+  /* margin-left: 0px !important; */
   margin-top: 5px;
 }
 </style>

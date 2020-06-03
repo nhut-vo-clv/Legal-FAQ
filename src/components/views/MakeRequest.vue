@@ -3,42 +3,47 @@
     <el-container v-loading.fullscreen.lock="fullscreenLoading">
       <el-main>
         <el-col
-          id="header-actions"
           :xl="{span: 16, offset: 4}"
           :lg="{span: 16, offset: 4}"
           :md="{span: 16, offset: 4}"
+          class="header-parent"
         >
-          <div class="box-header-actions">
-            <div class="box-title" v-if="isNewRecord == paramDocId">
-              <div>NEW REQUEST</div>
-            </div>
-            <div class="box-details" v-if="isNewRecord != paramDocId">
-              <el-page-header @back="goBack" :content="form.id"></el-page-header>
-            </div>
+          <div id="header-actions">
+            <div class="box-header-actions">
+              <div class="box-title" v-if="isNewRecord == paramDocId">
+                <p>NEW REQUEST</p>
+              </div>
+              <!-- <div class="box-title">RQ-00002</div> -->
+              <div class="box-details" v-if="isNewRecord != paramDocId">
+                <el-page-header @back="goBack" :content="form.id"></el-page-header>
+              </div>
 
-            <div class="box-buttons">
-              <el-button
-                size="small"
-                type="primary"
-                @click="onSubmit('formMakeRequest')"
-                v-if="isUser"
-              >SUBMIT</el-button>
-              <el-button size="small" v-if="isUser">RESOLVED</el-button>
-              <el-button size="small" v-if="isAdmin">ANSWER</el-button>
-              <el-button
-                size="small"
-                v-if="isAdmin"
-                @click="publishRecord(!form.publish)"
-              >{{form.publish ? 'UNPUBLISH' : 'PUBLISH'}}</el-button>
-              <el-button
-                size="small"
-                v-if="isAdmin"
-                :disabled="userRole.level === 'GHQ'"
-              >ESCALATE TO GHQ</el-button>
-              <el-button v-if="isNewRecord != paramDocId" size="small" @click="goBack">CANCEL</el-button>
+              <div class="box-buttons">
+                <el-button
+                  size="small"
+                  type="primary"
+                  @click="onSubmit('formMakeRequest')"
+                  v-if="isUser"
+                >SUBMIT</el-button>
+                <el-button size="small" type="success" v-if="isUser">RESOLVED</el-button>
+                <el-button size="small" type="info" v-if="isAdmin">ANSWER</el-button>
+                <el-button
+                  size="small"
+                  v-if="isAdmin"
+                  type="primary"
+                  @click="publishRecord(!form.publish)"
+                >{{form.publish ? 'UNPUBLISH' : 'PUBLISH'}}</el-button>
+                <el-button
+                  size="small"
+                  v-if="isAdmin"
+                  :disabled="userRole.level === 'GHQ'"
+                >ESCALATE TO GHQ</el-button>
+                <!-- <el-button v-if="isNewRecord != paramDocId" size="small" @click="goBack">CANCEL</el-button> -->
+              </div>
             </div>
           </div>
         </el-col>
+
         <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <el-divider>GENERAL INFO</el-divider>
           <el-form
@@ -1126,9 +1131,15 @@ export default {
       this.isUser = true;
     }
 
+    /**fixed header calculation */
     window.onscroll = () => {
-      if (window.pageYOffset >= this.sticky) {
+      // if (window.pageYOffset >= this.sticky) {
+      if (window.pageYOffset >= 10) {
         this.navbar.classList.add("sticky");
+        const parentElement = document.querySelector(".header-parent");
+        const fixedElement = document.querySelector(".sticky");
+        const parentElementWidth = parentElement.getBoundingClientRect().width;
+        fixedElement.style.width = parentElementWidth + "px";
       } else {
         this.navbar.classList.remove("sticky");
       }
@@ -1182,36 +1193,6 @@ export default {
   text-align: center;
 }
 
-.box-header-actions {
-  background-color: #eee;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
-  display: flex;
-  padding: 10px;
-  line-height: 0%;
-}
-
-.box-buttons {
-  margin-left: auto;
-}
-
-.box-buttons > button {
-  margin: 2px;
-}
-
-.box-title {
-  transform: translateY(50%);
-  padding-right: 20px;
-  font-size: 18px;
-  color: #bd0f72;
-  font-weight: bold;
-}
-
-.box-details {
-  transform: translateY(20%);
-  padding-right: 20px;
-}
-
 .auto-completed-list {
   display: flex;
 }
@@ -1257,5 +1238,9 @@ export default {
   position: fixed;
   top: 55px;
   z-index: 100;
+}
+
+.header-wrap {
+  width: 100%;
 }
 </style>

@@ -5,7 +5,7 @@
         <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <div class="box-header-actions">
             <div class="box-title">
-              <div>INQUIRY</div>
+              <p>INQUIRY</p>
             </div>
             <div class="box-buttons">
               <el-button size="small" type="primary" @click="onSubmit">CREATE</el-button>
