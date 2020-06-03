@@ -2,7 +2,12 @@
   <div class="body-wrap">
     <el-container v-loading.fullscreen.lock="fullscreenLoading">
       <el-main>
-        <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
+        <el-col
+          id="header-actions"
+          :xl="{span: 16, offset: 4}"
+          :lg="{span: 16, offset: 4}"
+          :md="{span: 16, offset: 4}"
+        >
           <div class="box-header-actions">
             <div class="box-title" v-if="isNewRecord == paramDocId">
               <div>NEW REQUEST</div>
@@ -32,7 +37,8 @@
               <el-button v-if="isNewRecord != paramDocId" size="small" @click="goBack">CANCEL</el-button>
             </div>
           </div>
-
+        </el-col>
+        <el-col :xl="{span: 16, offset: 4}" :lg="{span: 16, offset: 4}" :md="{span: 16, offset: 4}">
           <el-divider>GENERAL INFO</el-divider>
           <el-form
             :label-position="labelPosition"
@@ -461,7 +467,9 @@ export default {
         "presentation",
         "drawings"
       ],
-      labelPosition: "right"
+      labelPosition: "right",
+      navbar: "",
+      sticky: 0
     };
   },
   methods: {
@@ -1113,6 +1121,14 @@ export default {
     } else {
       this.isUser = true;
     }
+
+    window.onscroll = () => {
+      if (window.pageYOffset >= this.sticky) {
+        this.navbar.classList.add("sticky");
+      } else {
+        this.navbar.classList.remove("sticky");
+      }
+    };
   },
   computed: {
     ...mapGetters([
@@ -1139,6 +1155,8 @@ export default {
     /**
      Load Google Api Lib (E)
     **/
+    this.navbar = document.getElementById("header-actions");
+    this.sticky = this.navbar.offsetTop;
   },
   destroyed() {
     window.removeEventListener("resize", this.widthCalculating);
@@ -1229,5 +1247,11 @@ export default {
   margin-bottom: 7px;
   font-weight: bold;
   color: #2d1414;
+}
+
+.sticky {
+  position: fixed;
+  top: 55px;
+  z-index: 100;
 }
 </style>

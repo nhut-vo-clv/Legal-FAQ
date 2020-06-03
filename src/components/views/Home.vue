@@ -14,10 +14,12 @@
             <p
               class="text-center"
             >If you have legal/insurance inquiries, please raise a request through this portal.</p>
+            <el-row>
+              <el-divider>
+                <h5 class="title-red">How to use this portal</h5>
+              </el-divider>
+            </el-row>
 
-            <el-divider>
-              <h5 class="title-red">How to use this portal</h5>
-            </el-divider>
             <h5 class="title-red-table">1. Search past inquiries.</h5>
             <p>First, check whether similar inquiry already exist under “Published FAQ”.</p>
             <img class="iamge-center" src="/static/laptop-3196481__340.jpg" alt="Girl in a jacket" />
@@ -127,4 +129,5 @@ export default {
 .text-center {
   margin-bottom: 35px;
 }
+
 </style>

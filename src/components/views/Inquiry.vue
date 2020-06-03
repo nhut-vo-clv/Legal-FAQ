@@ -9,11 +9,18 @@
             :md="{span: 16, offset: 4}"
             :sm="{span: 16, offset: 4}"
           >
-            <el-divider>
-              <div class="header-title center-item">INQUIRY LIST</div>
-            </el-divider>
+            <div class="header-title center-item">INQUIRY LIST</div>
           </el-col>
           <el-table :data="listInquiry" border style="width: 100%">
+            <el-table-column type="expand" width="30">
+              <template slot-scope="props">
+                <p>Category: {{ props.row.category }}</p>
+                <p>Status: {{ props.row.status }}</p>
+                <p>Requester: {{ props.row.requester }}</p>
+                <p>Request to: {{ props.row.request_to }}</p>
+                <p>Risk to ONE: {{ props.row.risk_to }}</p>
+              </template>
+            </el-table-column>
             <el-table-column type="index" width="30"></el-table-column>
             <el-table-column label="ID" width="100px" prop="id" sortable></el-table-column>
             <el-table-column
@@ -23,6 +30,7 @@
               :filters="listCategory"
               :filter-method="filterHandler"
               sortable
+              v-if="isLarge"
             ></el-table-column>
             <el-table-column
               label="Requester"
@@ -65,14 +73,18 @@
               sortable
             >
               <template class="cell-publish" #default="{row}">
-                <el-checkbox :checked="row.publish" @change="publishRecord($event, row)"></el-checkbox>
+                <el-tooltip content="Publish inquiry" placement="top">
+                  <el-checkbox :checked="row.publish" @change="publishRecord($event, row)"></el-checkbox>
+                </el-tooltip>
               </template>
             </el-table-column>
             <el-table-column width="40" align="right">
               <template #default="{row}">
-                <router-link :to="'make-request/' + row.documentId">
-                  <i class="el-icon-view icon-in-cell"></i>
-                </router-link>
+                <el-tooltip content="Details" placement="top">
+                  <router-link :to="'make-request/' + row.documentId">
+                    <i class="el-icon-view icon-in-cell"></i>
+                  </router-link>
+                </el-tooltip>
               </template>
             </el-table-column>
           </el-table>
