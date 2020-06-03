@@ -10,7 +10,7 @@
             :sm="{span: 16, offset: 4}"
           >
             <el-divider>
-              <div class="header-title center-item">Published FAQ</div>
+              <div class="header-title center-item">PUBLISHED FAQ</div>
             </el-divider>
           </el-col>
           <el-table :data="listPublishInquiry" border style="width: 100%">
