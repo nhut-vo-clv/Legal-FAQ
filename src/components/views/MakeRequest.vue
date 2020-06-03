@@ -1237,7 +1237,7 @@ export default {
 .sticky {
   position: fixed;
   top: 55px;
-  z-index: 100;
+  z-index: 5;
 }
 
 .header-wrap {
