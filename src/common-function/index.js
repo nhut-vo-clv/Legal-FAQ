@@ -99,7 +99,29 @@ export const commonFunction = {
             this.alertError(error.message);
         }
     },
-    deleteRecord() { },
+    deleteRecord(collectionName, docId) {
+        try {
+            return new Promise((resolve, reject) => {
+                let formData = {active: false};
+                let obj = Object.assign({}, this.getSystemField(false), formData);
+
+                firebase.firestore()
+                    .collection(collectionName)
+                    .doc(docId)
+                    .update(obj)
+                    .then(async () => {
+                        await this.writeLogSuccessfully(formData);
+                        this.alertSuccess();
+                        resolve(true);
+                    }).catch(error => {
+                        this.alertError(error);
+                        reject(false);
+                    });
+            });
+        } catch (error) {
+            this.alertError(error.message);
+        }
+    },
     async getGSuiteUserInfo() {
         try {
             let userEmail = this.getUserEmailLogin();

@@ -30,7 +30,11 @@
               prop="requester"
               sortable
               v-if="isLarge"
-            ></el-table-column>
+            >
+              <template #default="{row}">
+                <div v-html="row.requester"></div>
+              </template>
+            </el-table-column>
             <el-table-column label="Request to" width="150px" prop="request_to" sortable></el-table-column>
             <el-table-column label="Inquiry" min-width="150px" prop="inquiry" sortable></el-table-column>
             <el-table-column
@@ -47,7 +51,11 @@
               prop="updated"
               sortable
               v-if="isLarge"
-            ></el-table-column>
+            >
+              <template #default="{row}">
+                <div v-html="row.updated"></div>
+              </template>
+            </el-table-column>
             <el-table-column
               label="Publish"
               width="100"
@@ -183,12 +191,18 @@ export default {
         let data = doc.data();
         obj.id = data.id;
         obj.category = data.category;
-        obj.requester = data.requester_name + "\n" + data.created;
+        obj.requester =
+          data.requester_name +
+          "<br/>" +
+          this.$commonFunction.formatDate(data.created.toDate());
         obj.request_to = data.request_to;
         obj.inquiry = data.summary;
         obj.risk_to = data.risk_to;
         obj.status = data.status;
-        obj.updated = data.updated_by + "\n" + data.updated;
+        obj.updated =
+          data.updated_by +
+          "<br/>" +
+          this.$commonFunction.formatDate(data.updated.toDate());
         obj.publish = data.publish;
         obj.documentId = doc.id;
         this.listInquiry.push(obj);
@@ -197,9 +211,9 @@ export default {
       this.fullscreenLoading = false;
     },
     async publishRecord(checkVal, record) {
-      let obj = {publish: checkVal};
+      let obj = { publish: checkVal };
 
-      if(checkVal){
+      if (checkVal) {
         obj.publish_date = this.$commonFunction.getSystemDate();
       }
 

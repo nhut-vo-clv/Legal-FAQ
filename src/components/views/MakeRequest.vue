@@ -11,7 +11,24 @@
               <el-page-header @back="goBack" :content="form.id"></el-page-header>
             </div>
             <div class="box-buttons">
-              <el-button size="small" type="primary" @click="onSubmit('formMakeRequest')">SUBMIT</el-button>
+              <el-button
+                size="small"
+                type="primary"
+                @click="onSubmit('formMakeRequest')"
+                v-if="isUser"
+              >SUBMIT</el-button>
+              <el-button size="small" v-if="isUser">RESOLVED</el-button>
+              <el-button size="small" v-if="isAdmin">ANSWER</el-button>
+              <el-button
+                size="small"
+                v-if="isAdmin"
+                @click="publishRecord(!form.publish)"
+              >{{form.publish ? 'UNPUBLISH' : 'PUBLISH'}}</el-button>
+              <el-button
+                size="small"
+                v-if="isAdmin"
+                :disabled="userRole.level === 'GHQ'"
+              >ESCALATE TO GHQ</el-button>
               <el-button v-if="isNewRecord != paramDocId" size="small" @click="goBack">CANCEL</el-button>
             </div>
           </div>
@@ -183,7 +200,12 @@
                       ></el-button>
                     </el-tooltip>
                     <el-tooltip content="Delete Attachment" placement="top">
-                      <el-button type="danger" icon="el-icon-delete" circle></el-button>
+                      <el-button
+                        type="danger"
+                        icon="el-icon-delete"
+                        circle
+                        @click="deleteFileUpload(row.id)"
+                      ></el-button>
                     </el-tooltip>
                   </template>
                 </el-table-column>
@@ -424,6 +446,9 @@ export default {
       driveFolder: "",
       listFileUpload: [],
       listRequestType: [],
+      isUser: false,
+      isAdmin: false,
+      userRole: {},
       masterDataFileType: {
         docx: ["document", "docx", "odt", "rtf", "pdf", "txt", "zip", "epub"],
         xlsx: ["spreadsheets", "xlsx", "ods", "pdf", "zip"],
@@ -485,10 +510,21 @@ export default {
       });
     },
     async loadRequest() {
+      const emailUserLogin = this.$commonFunction.getUserEmailLogin();
+
       this.form = await this.$commonFunction.getRecord(
         this.getRequestCollection,
         this.paramDocId
       );
+
+      if (
+        this.form.email === emailUserLogin ||
+        this.form.copy_to.indexOf(emailUserLogin) !== -1
+      ) {
+        this.isUser = true;
+      } else if (this.userRole.isAdmin) {
+        this.isAdmin = true;
+      }
 
       this.tagCopyTo = this.form.copy_to;
       this.form.request_date = this.$commonFunction.formatDate(
@@ -564,11 +600,26 @@ export default {
     categoryOnChange(val) {
       this.listRequestType = [];
       if (val === "Insurance") {
-        this.listRequestType = ['Marine', 'Non Marine'];
+        this.listRequestType = ["Marine", "Non Marine"];
       } else if (val === "Policy") {
-        this.listRequestType = ['Credo-CoC', 'Anti-bribery', 'Sanction', 'Meeting with competitors', 'Data Protection', 'Others'];
+        this.listRequestType = [
+          "Credo-CoC",
+          "Anti-bribery",
+          "Sanction",
+          "Meeting with competitors",
+          "Data Protection",
+          "Others"
+        ];
       } else if (val === "Compliance") {
-        this.listRequestType = ['Competition', 'Anti-bribery', 'Sanction', 'Data protection', 'Conflict of Interest', 'Fraud', 'Others'];
+        this.listRequestType = [
+          "Competition",
+          "Anti-bribery",
+          "Sanction",
+          "Data protection",
+          "Conflict of Interest",
+          "Fraud",
+          "Others"
+        ];
       }
     },
     onSubmit(formName) {
@@ -900,13 +951,33 @@ export default {
         );
 
         arrData.forEach(doc => {
-          this.listFileUpload.push(doc.data());
+          let obj = doc.data();
+          obj.id = doc.id;
+          this.listFileUpload.push(obj);
         });
         resolve(true);
       });
     },
     downloadFile(fileId, fileName, fileUrl) {
-      let fileType = "";
+      return;
+      var fileId = "1Ndh1HhCRzrvHU35hFDQ-km-2hlu0Rcub";
+      var dest = fs.createWriteStream("/resume.pdf");
+      gapi.client.load("drive", "v3", () => {
+        gapi.client.drive.files
+          .export({
+            fileId: fileId,
+            mimeType: "application/pdf"
+          })
+          .on("end", function() {
+            console.log("Done");
+          })
+          .on("error", function(err) {
+            console.log("Error during download", err);
+          })
+          .pipe(dest);
+      });
+
+      /*let fileType = "";
       // Get file type in last file name
       var rex = /[^\.]+$/g;
       var result;
@@ -962,7 +1033,7 @@ export default {
             })
             .getDownloadUrl(fileId);
         }
-      }
+      }*/
     },
     generateFormatDownload(fileId, listFormat) {
       for (var i = 1; i < listFormat.length; i++) {
@@ -981,6 +1052,30 @@ export default {
       this.$alert(htmlStr, "Select format file", {
         dangerouslyUseHTMLString: true
       });
+    },
+    async publishRecord(flag) {
+      let obj = { publish: flag };
+
+      if (!this.form.publish) {
+        obj.publish_date = this.$commonFunction.getSystemDate();
+      }
+
+      await this.$commonFunction.updateRecord(
+        this.getRequestCollection,
+        this.paramDocId,
+        obj
+      );
+
+      this.form.publish = flag;
+    },
+    async deleteFileUpload(documentId) {
+      await this.$commonFunction.deleteRecord(
+        this.getUploadCollection,
+        documentId
+      );
+
+      let idx = this.listFileUpload.findIndex(x => x.id === documentId);
+      this.listFileUpload.splice(idx, 1);
     },
     buildCopyToInfor(item, idx) {
       console.log(item);
@@ -1006,14 +1101,17 @@ export default {
       else this.labelPosition = "top";
     }
   },
-  created() {
+  async created() {
     delete this.form.comment;
     this.loadCategory();
     this.loadRegion();
     this.loadUserInfo();
+    this.userRole = await this.$commonFunction.checkUserRole();
     window.addEventListener("resize", this.widthCalculating);
     if (this.paramDocId !== this.isNewRecord) {
       this.loadRequest();
+    } else {
+      this.isUser = true;
     }
   },
   computed: {
