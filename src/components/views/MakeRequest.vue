@@ -569,7 +569,12 @@ export default {
             field: "request_id",
             oper: "==",
             value: requestId
-          }
+          },
+          {
+          field: "created",
+          value: "desc",
+          type: "order"
+        }
         ];
 
         let arrData = await this.$commonFunction.getList(
