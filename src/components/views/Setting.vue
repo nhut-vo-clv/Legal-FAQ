@@ -77,6 +77,7 @@
             </div>
           </el-col>
 
+          <el-input size="small" v-model="searchFilterText" @input="filterText"></el-input>
           <el-table :data="pagedTableData" stripe style="width: 100%">
             <el-table-column label="Name" min-width="150px" prop="name" sortable></el-table-column>
             <el-table-column prop="email" label="Email" min-width="150px">
@@ -93,7 +94,14 @@
                 >{{group_email}}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="Active" min-width="150px" prop="active" sortable></el-table-column>
+            <el-table-column
+              label="Active"
+              min-width="150px"
+              prop="active"
+              :filters="[{ value: 'true', text: 'true' },{ value: 'false', text: 'false' }]"
+              :filter-method="filterActive"
+              sortable
+            ></el-table-column>
             <el-table-column
               label="Created"
               min-width="150px"
@@ -219,7 +227,9 @@ export default {
       inputSuperEmailVisible: false,
       inputSuperEmailValue: "",
       page: 1,
-      pageSize: 10
+      pageSize: 10,
+      searchFilterText: "",
+      listClone: []
     };
   },
   methods: {
@@ -248,9 +258,9 @@ export default {
               let obj = {};
               var data = doc.data();
               obj = data;
-              obj.active = data.active === true ? "True" : "False";
+              obj.active = data.active.toString();
               obj.created = data.created.toDate();
-              obj.updated = data.updated.toDate();
+              obj.created_by = data.created_by;
               obj.documentId = doc.id;
               this.listRegion.push(obj);
             });
@@ -342,6 +352,27 @@ export default {
     },
     setPage(val) {
       this.page = val;
+    },
+    filterActive(value, row, column) {
+      const property = column["property"];
+      return row[property] === value;
+    },
+    filterText(filters) {
+      let val = this.searchFilterText;
+      this.listRegion = this.listClone;
+      this.listRegion = this.filterdTable(this.listRegion, val, [
+        "name",
+        "created_by"
+      ]);
+    },
+    filterdTable(list, search, keys) {
+      return list.filter(function(item) {
+        return keys.some(key =>
+          String(item[key])
+            .toLowerCase()
+            .includes(search)
+        );
+      });
     }
   },
   created() {
@@ -371,6 +402,7 @@ export default {
   },
   mounted() {
     this.widthCalculating();
+    this.listClone = this.listRegion;
   }
 };
 </script>
