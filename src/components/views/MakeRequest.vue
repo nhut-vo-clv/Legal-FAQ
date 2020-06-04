@@ -22,11 +22,11 @@
                 <el-button
                   size="small"
                   type="primary"
-                  @click="onSubmit('formMakeRequest')"
+                  @click="onSubmit('formMakeRequest', 'submit')"
                   v-if="isUser"
                 >SUBMIT</el-button>
                 <el-button size="small" type="success" v-if="isUser">RESOLVED</el-button>
-                <el-button size="small" type="primary" v-if="isAdmin">ANSWER</el-button>
+                <el-button size="small" type="primary" v-if="isAdmin" @click="onSubmit('formMakeRequest', 'answer')">ANSWER</el-button>
                 <el-button
                   size="small"
                   v-if="isAdmin"
@@ -171,13 +171,14 @@
                 :autosize="{ minRows: 5, maxRows: 5}"
                 v-model="form.summary"
                 placeholder="Summary of your inquiry"
+                :disabled="userRole.level === 'RHQ' && isAdmin"
               ></el-input>
             </el-form-item>
             <el-form-item
               :label="rules.request_type[0].fieldLabel"
               :prop="rules.request_type[0].prop"
             >
-              <el-select v-model="form.request_type" placeholder="Please select Request type">
+              <el-select v-model="form.request_type" placeholder="Please select Request type" :disabled="userRole.level === 'RHQ' && isAdmin">
                 <el-option
                   v-for="(requestType, idx) in listRequestType"
                   :key="idx"
@@ -638,7 +639,7 @@ export default {
         ];
       }
     },
-    onSubmit(formName) {
+    onSubmit(formName, type) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           let insertFlag = false;
@@ -648,6 +649,11 @@ export default {
 
           if (this.paramDocId !== this.isNewRecord) {
             // Update request
+            if(type === 'submit'){
+              this.form.status = this.getRequestStatusNew;
+            }else if(type === 'answer'){
+              this.form.status = this.getRequestStatusAnswered;
+            }
             await this.$commonFunction.updateRecord(
               this.getRequestCollection,
               this.paramDocId,
@@ -1159,6 +1165,7 @@ export default {
       "getCommentCollection",
       "getUploadCollection",
       "getRequestStatusNew",
+      "getRequestStatusAnswered",
       "getDomain",
       "getAPIKey"
     ])

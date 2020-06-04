@@ -10,12 +10,18 @@
             :sm="{span: 16, offset: 4}"
           >
             <div class="box-header-actions">
-            
               <div class="box-details">
-                <el-page-header @back="goBack" :content='isNewRecord == paramDocId ? "NEW REGION": "EDIT REGION"'></el-page-header>
+                <el-page-header
+                  @back="goBack"
+                  :content="isNewRecord == paramDocId ? 'NEW REGION': 'EDIT REGION'"
+                ></el-page-header>
               </div>
               <div class="box-buttons">
-                <el-button size="small" type="primary" @click="onSubmit('formRegion')">{{isNewRecord != paramDocId ? "SAVE" : "SUBMIT"}}</el-button>
+                <el-button
+                  size="small"
+                  type="primary"
+                  @click="onSubmit('formRegion')"
+                >{{isNewRecord != paramDocId ? "SAVE" : "SUBMIT"}}</el-button>
                 <!-- <el-button size="small" v-if="isNewRecord == paramDocId" @click="goBack">CANCEL</el-button> -->
               </div>
             </div>
@@ -124,21 +130,33 @@ export default {
     onSubmit(formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
+          let insertFlag = false;
+          let insertDocId = "";
           this.fullscreenLoading = true;
           this.form.email = this.tagEmail;
           this.form.group_email = this.tagGroupEmail;
 
-          if (this.paramDocId !== this.isNewRecord)
+          if (this.paramDocId !== this.isNewRecord) {
             await this.$commonFunction.updateRecord(
               this.getRegionCollection,
               this.paramDocId,
               this.form
             );
-          else
-            await this.$commonFunction.insertRecord(
+          } else {
+            insertDocId = await this.$commonFunction.insertRecord(
               this.getRegionCollection,
               this.form
             );
+            insertFlag = true;
+          }
+
+          if (insertFlag) {
+            this.$router.replace({
+              name: "EditRegion",
+              params: { id: insertDocId }
+            });
+            this.paramDocId = insertDocId;
+          }
           this.fullscreenLoading = false;
         } else {
           return false;
@@ -216,6 +234,7 @@ export default {
   },
   created() {
     if (this.paramDocId !== this.isNewRecord) this.loadRegionData();
+    else this.form.active = true;
   },
   computed: {
     ...mapGetters(["getRegionCollection", "getSaveSuccessfullyMessage"])

@@ -77,7 +77,7 @@
             </div>
           </el-col>
 
-          <el-table :data="regionData" stripe style="width: 100%">
+          <el-table :data="pagedTableData" stripe style="width: 100%">
             <el-table-column label="Name" min-width="150px" prop="name" sortable></el-table-column>
             <el-table-column prop="email" label="Email" min-width="150px">
               <template #default="{row}">
@@ -121,6 +121,11 @@
               </template>
             </el-table-column>
           </el-table>
+          <el-pagination
+            layout="prev, pager, next"
+            :total="listRegion.length"
+            @current-change="setPage"
+          ></el-pagination>
         </el-row>
       </el-main>
     </el-container>
@@ -207,12 +212,14 @@ export default {
           }
         }
       ],
-      regionData: [],
+      listRegion: [],
       fullscreenLoading: false,
       isLarge: false,
       tagSuperEmail: [],
       inputSuperEmailVisible: false,
-      inputSuperEmailValue: ""
+      inputSuperEmailValue: "",
+      page: 1,
+      pageSize: 10
     };
   },
   methods: {
@@ -226,7 +233,7 @@ export default {
     },
     async loadRegion(arrQuery) {
       this.fullscreenLoading = true;
-      this.regionData = [];
+      this.listRegion = [];
       var ref = this.$db.collection(this.getRegionCollection);
 
       for (let i in arrQuery) {
@@ -245,7 +252,7 @@ export default {
               obj.created = data.created.toDate();
               obj.updated = data.updated.toDate();
               obj.documentId = doc.id;
-              this.regionData.push(obj);
+              this.listRegion.push(obj);
             });
             this.fullscreenLoading = false;
           })
@@ -332,6 +339,9 @@ export default {
         this.inputSuperEmailVisible = false;
         this.inputSuperEmailValue = "";
       }
+    },
+    setPage(val) {
+      this.page = val;
     }
   },
   created() {
@@ -347,6 +357,12 @@ export default {
     window.removeEventListener("resize", this.widthCalculating);
   },
   computed: {
+    pagedTableData() {
+      return this.listRegion.slice(
+        this.pageSize * this.page - this.pageSize,
+        this.pageSize * this.page
+      );
+    },
     ...mapGetters([
       "getCommonCollection",
       "getRegionCollection",
