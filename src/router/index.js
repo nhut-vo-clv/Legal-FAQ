@@ -69,7 +69,7 @@ const router = new Router({
       }
     },
     {
-      path: '/make-request/:id',
+      path: '/make-request/:id/:isPublish?',
       name: 'MakeRequest',
       component: MakeRequest,
       meta: {

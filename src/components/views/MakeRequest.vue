@@ -26,11 +26,11 @@
                   v-if="isUser"
                 >SUBMIT</el-button>
                 <el-button size="small" type="success" v-if="isUser">RESOLVED</el-button>
-                <el-button size="small" type="info" v-if="isAdmin">ANSWER</el-button>
+                <el-button size="small" type="primary" v-if="isAdmin">ANSWER</el-button>
                 <el-button
                   size="small"
                   v-if="isAdmin"
-                  type="primary"
+                  type="info"
                   @click="publishRecord(!form.publish)"
                 >{{form.publish ? 'UNPUBLISH' : 'PUBLISH'}}</el-button>
                 <el-button
@@ -53,6 +53,7 @@
             :rules="rules"
             label-width="140px"
             size="small"
+            :disabled="paramPublish"
           >
             <el-form-item :label="rules.id[0].fieldLabel" :prop="rules.id[0].prop">
               <el-input
@@ -445,13 +446,14 @@ export default {
       form: this.$commonFunction.getFormPorp(arrProp),
       rules: this.$commonFunction.getRuleValidation(arrProp),
       paramDocId: this.$route.params.id,
+      paramPublish: this.$route.params.isPublish ? true : false,
       listCategory: [],
       listRegion: [],
       listComment: [],
       tagCopyTo: [],
       inputCopyToVisible: false,
       inputCopyToValue: "",
-      isNewRecord: "isNew",
+      isNewRecord: "-1",
       commentContent: "",
       fullscreenLoading: true,
       pickerApiLoaded: false,
@@ -1067,20 +1069,24 @@ export default {
         dangerouslyUseHTMLString: true
       });
     },
-    async publishRecord(flag) {
-      let obj = { publish: flag };
+    publishRecord(flag) {
+      this.$commonFunction.confirmDialog("publish", async (returnData) => {
+        if(returnData){
+          let obj = { publish: flag };
 
-      if (!this.form.publish) {
-        obj.publish_date = this.$commonFunction.getSystemDate();
-      }
+          if (!this.form.publish) {
+            obj.publish_date = this.$commonFunction.getSystemDate();
+          }
 
-      await this.$commonFunction.updateRecord(
-        this.getRequestCollection,
-        this.paramDocId,
-        obj
-      );
+          await this.$commonFunction.updateRecord(
+            this.getRequestCollection,
+            this.paramDocId,
+            obj
+          );
 
-      this.form.publish = flag;
+          this.form.publish = flag;
+        }
+      });
     },
     async deleteFileUpload(documentId) {
       await this.$commonFunction.deleteRecord(

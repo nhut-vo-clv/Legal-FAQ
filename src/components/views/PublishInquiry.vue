@@ -31,7 +31,7 @@
             ></el-table-column>
             <el-table-column width="40" align="right">
               <template #default="{row}">
-                <router-link :to="'make-request/' + row.documentId">
+                <router-link :to="'make-request/' + row.documentId + '/isPublish'">
                   <i class="el-icon-view icon-in-cell"></i>
                 </router-link>
               </template>

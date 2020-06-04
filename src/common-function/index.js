@@ -401,5 +401,18 @@ export const commonFunction = {
                 resolve({isAdmin: false, level: ''});
               }
         });
+    },
+    confirmDialog(type, callback) {
+        if(type === 'publish'){
+            ElementUI.MessageBox.confirm('Do you want to escalate to GHQ?', 'Confirmation', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+                type: 'info'
+              }).then(() => {
+                callback(true);
+              }).catch(() => {
+                callback(false);
+              });
+        }
     }
 }

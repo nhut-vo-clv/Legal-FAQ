@@ -106,7 +106,7 @@ export default {
       inputEmailValue: "",
       inputGroupEmailVisible: false,
       inputGroupEmailValue: "",
-      isNewRecord: "isNew"
+      isNewRecord: "-1"
     };
   },
 

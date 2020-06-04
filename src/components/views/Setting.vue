@@ -271,7 +271,7 @@ export default {
       });
     },
     newRegion() {
-      this.$router.push("edit-region/isNew");
+      this.$router.push("edit-region/-1");
     },
     widthCalculating() {
       if (window.innerWidth > 1000) this.isLarge = true;

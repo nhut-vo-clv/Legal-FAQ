@@ -11,7 +11,7 @@
             <router-link to="/publish-inquiry">PUBLISHED FAQ</router-link>
           </li>
           <li>
-            <router-link to="/make-request/isNew">MAKE REQUEST</router-link>
+            <router-link to="/make-request/-1">MAKE REQUEST</router-link>
           </li>
           <li>
             <router-link to="/inquiry">INQUIRY</router-link>

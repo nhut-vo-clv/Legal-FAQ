@@ -222,18 +222,25 @@ export default {
 
       this.fullscreenLoading = false;
     },
-    async publishRecord(checkVal, record) {
-      let obj = { publish: checkVal };
+    publishRecord(checkVal, record) {
+      this.$commonFunction.confirmDialog("publish", async returnData => {
+        if (returnData) {
+          let obj = { publish: checkVal };
 
-      if (checkVal) {
-        obj.publish_date = this.$commonFunction.getSystemDate();
-      }
+          if (checkVal) {
+            obj.publish_date = this.$commonFunction.getSystemDate();
+          }
 
-      await this.$commonFunction.updateRecord(
-        this.getRequestCollection,
-        record.documentId,
-        obj
-      );
+          await this.$commonFunction.updateRecord(
+            this.getRequestCollection,
+            record.documentId,
+            obj
+          );
+        }else{
+          let idx = this.listInquiry.findIndex(x => x.documentId === record.documentId);
+          this.listInquiry[idx].publish = false;
+        }
+      });
     },
     filterHandler(value, row, column) {
       const property = column["property"];
