@@ -18,7 +18,7 @@
                 <el-page-header @back="goBack" :content="form.id"></el-page-header>
               </div>
 
-              <div class="box-buttons">
+              <div class="box-buttons" :class="paramPublish ? 'disabled-all-button' : ''">
                 <el-button
                   size="small"
                   type="primary"
@@ -1248,5 +1248,9 @@ export default {
 
 .header-wrap {
   width: 100%;
+}
+
+.disabled-all-button {
+  display: none;
 }
 </style>
